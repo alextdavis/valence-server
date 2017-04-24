@@ -14,6 +14,12 @@
       "version": "1.0.0-beta.4"
     },
     {
+      "package": "CMySQL",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/cmysql.git",
+      "version": "2.0.0-beta.4"
+    },
+    {
       "package": "CTLS",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/ctls.git",
@@ -50,6 +56,12 @@
       "version": "2.0.0-beta.2"
     },
     {
+      "package": "ErbProvider",
+      "reason": null,
+      "repositoryURL": "/Users/alex/Developer/vapor/erb-provider",
+      "version": "0.1.29"
+    },
+    {
       "package": "Fluent",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/fluent.git",
@@ -78,6 +90,24 @@
       "reason": null,
       "repositoryURL": "https://github.com/vapor/multipart.git",
       "version": "2.0.0-beta.2"
+    },
+    {
+      "package": "MySQL",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/mysql.git",
+      "version": "2.0.0-beta.5"
+    },
+    {
+      "package": "MySQLDriver",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/mysql-driver.git",
+      "version": "2.0.0-beta.12"
+    },
+    {
+      "package": "MySQLProvider",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/mysql-provider.git",
+      "version": "2.0.0-beta.5"
     },
     {
       "package": "Node",
@@ -125,7 +155,7 @@
       "package": "Vapor",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/vapor.git",
-      "version": "2.0.0-beta.16"
+      "version": "2.0.0-beta.18"
     }
   ],
   "version": 1

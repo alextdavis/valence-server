@@ -11,6 +11,8 @@
     
     "cipher": "crypto",
     
+    "view": "erb",
+    
     "middleware": [
         "error",
         "date",

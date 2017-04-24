@@ -1,0 +1,26 @@
+ul.split-left-group > li.list-group-item > span {
+    display: inline-block;
+    max-width: calc(100% - 94px);
+
+}
+ul.split-left-group > li.list-group-item > span > p {
+    margin: 0;
+}
+
+ul.split-left-group {
+    height: calc(100vh - 100px);
+    overflow: scroll;
+    border-top: solid #ddd 1px;
+    border-bottom: solid #ddd 1px;
+}
+
+ul.split-left-group > li.list-group-item > img {
+    width: 64px;
+    height: 64px;
+    vertical-align: top;
+    margin-right: 1rem;
+}
+
+.label-artist {
+    font-size: 85%;
+}

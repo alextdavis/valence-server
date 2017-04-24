@@ -1,0 +1,124 @@
+table.songs-table thead{
+    font-weight: bold;
+}
+
+table.songs-table {
+    white-space: nowrap;
+}
+
+/*
+table.songs-table thead, table.songs-table tbody {
+    display:block;
+}
+
+table.songs-table tbody {
+    max-height: calc(100vh - 90px);
+    overflow-y: scroll;
+}*/
+
+table.songs-table tbody td{
+    height: 31px;
+    overflow: hidden;
+}
+
+table.songs-table td.row-rank {
+    text-align: center;
+}
+
+table.songs-table td.row-rank .fa-chevron-up{
+    color: orangered;
+}
+
+table.songs-table td.row-rank .fa-chevron-down{
+    color: #9494FF;
+}
+
+table.songs-table td.row-rank select {
+    height: 10px;
+    line-height: 10px;
+}
+
+table.songs-table td.row-rating {
+    width: 8rem;
+    text-align: center;
+}
+
+table.songs-table td.row-time {
+    width: 6rem;
+    text-align: center;
+}
+
+table.songs-table td.row-name {
+    max-width: 200px;
+    text-overflow: ellipsis;
+}
+
+table.songs-table td.row-track {
+    text-align: right;
+}
+
+
+.rating-active {
+    unicode-bidi: bidi-override;
+    direction: rtl;
+    text-align: center;
+    display: none;
+    cursor: pointer;
+}
+
+.rating:hover > .rating-active {
+    display: block;
+}
+
+.rating:hover > .rating-static {
+    display: none;
+}
+
+.rating-active > span {
+    display: inline-block;
+    position: relative;
+    /*width: 1.1em;*/
+}
+.rating-active > span:hover:before,
+.rating-active > span:hover ~ span:before {
+    content: "\2605";
+    position: absolute;
+}
+
+.rating[data-value="0"] > .rating-static:before {
+    content:"☆☆☆☆☆";
+}
+.rating[data-value="1"] > .rating-static:before {
+    content:"★☆☆☆☆";
+}
+.rating[data-value="2"] > .rating-static:before {
+    content:"★★☆☆☆";
+}
+.rating[data-value="3"] > .rating-static:before {
+    content:"★★★☆☆";
+}
+.rating[data-value="4"] > .rating-static:before {
+    content:"★★★★☆";
+}
+.rating[data-value="5"] > .rating-static:before {
+    content:"★★★★★";
+}
+
+td.row-track {
+    cursor: pointer;
+}
+
+td.row-track > i {
+    display: none;
+}
+
+td.row-track:hover > i {
+    display: block;
+    position: relative;
+    top: 3px;
+    left: -2px;
+}
+
+td.row-track:hover > span {
+    display: none;
+}

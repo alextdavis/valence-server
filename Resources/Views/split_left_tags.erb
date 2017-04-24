@@ -1,0 +1,11 @@
+<ul class="list-group split-left-group">
+  <% @tags.each do |e| %>
+      <li class="list-group-item category-list-item" data-type="tag" data-id="<%= e.id %>">
+        <p class="tag-name" style="font-size: 16px;">
+          <span class="badge"><%= e.songs.count %></span> <%= e.name %>
+          <i class="fa fa-info-circle tag-edit"></i>
+          <i class="fa fa-trash text-danger tag-delete"></i>
+        </p>
+      </li>
+  <% end %>
+</ul>

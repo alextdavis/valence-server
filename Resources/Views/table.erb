@@ -1,0 +1,81 @@
+<table class="songs-table table table-striped table-bordered table-condensed">
+  <thead>
+  <tr>
+    <% @cols.each do |col| %>
+        <% if col == :rank %>
+            <td style="width: 30px"></td>
+        <% elsif col == :track %>
+            <td style="width: 20px;">&numero;</td>
+        <% elsif @orderables.include? col %>
+            <td class="orderable-header" style="text-align: right;"
+                data-col="<%= col.to_s.downcase %>"
+                data-order="<%= @order[1] if @order && @order[0] == col %>">
+              <span class="pull-left"><%= col.to_s.capitalize %></span>
+              <i class="fa fa-sort<%= '-' + @order[1] if @order && @order[0] == col %>"></i>
+            </td>
+        <% else %>
+            <td>
+              <%= col.to_s.capitalize %>
+            </td>
+        <% end %>
+    <% end %>
+  </tr>
+  </thead>
+  <tbody>
+  <% @songs.each do |s| %>
+      <tr data-id="<%= s.id %>">
+        <% @cols.each do |col| %>
+            <% case col
+                 when :rank %>
+                <td class="row-rank" data-rank="<%= s.rank %>"><!--TODO: Make this use CSS instead?-->
+                  <select style="display:none" class="form-control input-sm rank-select">
+                    <% (0..3).reverse_each do |i| %>
+                        <option <%= 'selected' if s.rank == i %> value="<%= i %>">
+                          <%= %w(Disable Suppress Neutral Promote)[i] %>
+                        </option>
+                    <% end %>
+                  </select>
+                  <i class="fa fa-<%= %w(close chevron-down minus chevron-up)[s.rank] %>"></i>
+                </td>
+            <% when :rating %>
+                <td class="row-rating"><%= stars s.rating %></td>
+            <% when :tags %>
+                <td class="row-tags">
+                  <span class="tags-list">
+                   <%= s.tags.map { |e| to_html(e) }
+                       .join("&NegativeMediumSpace;") %>
+                  </span>
+                  <i class="fa fa-pencil-square text-primary tag-edit"></i>
+                  <span class="tags-edit" style="display: none;">
+                    <span style="width: calc(100% - 50px)">
+                      <form class="tag-edit-form" style="display: inline">
+                        <select multiple class="form-control" style="width: 80%" name="tags[]">
+                          <% Tag.each do |tag| %>
+                              <option value="<%= tag.name %>" <%= 'selected' if s.tags.include?(tag) %>>
+                                <%= tag.name %>
+                              </option>
+                          <% end %>
+                        </select>
+                      </form>
+                    </span>
+                    <button class="btn btn-primary tag-edit-done">Done</button>
+                  </span>
+                </td>
+            <% when :track %>
+                <td class="row-track">
+                  <i class="text-primary fa fa-info-circle"></i>
+                  <span><%= to_html s.send(col) %></span>
+                </td>
+            <% else %>
+                <td class="row-<%= col.to_s %>"><%= to_html s.send(col) %></td>
+            <% end %>
+        <% end %>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+<script type="text/javascript">
+    $('.row-tags select').select2({tags: true}); //TODO: When a new tag is entered, it isn't added
+    // to the list of options in for other songs. Should be changed so the select comes on-demand
+    // via ajax
+</script>

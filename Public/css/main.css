@@ -1,0 +1,81 @@
+html,
+body {
+    overflow: hidden;
+}
+
+input.form-control {
+    padding: 6px;
+}
+
+.label-artist {
+    display: inline;
+    padding: .2em .6em .3em;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: 1;
+    text-align: center;
+    white-space: normal;
+    vertical-align: baseline;
+    border-radius: 1em;
+    background-color: white;
+    border: solid grey 1px;
+    color: black;
+    /*height: 100px;*/
+    width: 100%;
+}
+
+.label-album {
+    color:black;
+    /*white-space: nowrap;*/
+}
+
+.label-tag {
+    display: inline;
+    padding: .1em .5em .2em;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: 1;
+    text-align: center;
+    white-space: normal;
+    vertical-align: baseline;
+    border-radius: 1em;
+    background-color: lightblue;
+    border: solid grey 1px;
+    color: black;
+    /*height: 100px;*/
+    width: 100%;
+}
+
+.playhead {
+    height: 100px;
+    /*margin-bottom: 20px;*/
+    /*margin-top: 20px*/
+    background-color: #ddd;
+}
+
+#playhead .infobox {
+    display: inline-block;
+}
+
+#playhead .infobox .infobox-inner p{
+    margin: 0;
+    line-height:1;
+}
+
+#playhead .shuffle.shuffle-on {
+    color: #337ab7;
+}
+
+#playhead .shuffle.shuffle-off {
+    color: inherit;
+}
+
+button.btn.play {
+    width: 50px;
+    text-align: center;
+}
+
+.table-container {
+    max-height: calc(100vh - 90px);
+    overflow-y: scroll;
+}
