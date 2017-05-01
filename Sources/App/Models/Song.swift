@@ -16,7 +16,31 @@ final class Song: Model {
     var added: Int
     var modified: Int
     var lastPlayed: Int
+    
+    let albumId: Identifier
+    let mediaAssetId: Identifier
+    var owner: Parent<Song, Album> {
+        return parent(id: albumId)
+    }
 
+    init(name: String, track: Int, rating: Int, rank: Int, album: Identifier, mediaAsset: Identifier, time: Int, playCount: Int = 0) {
+        self.name = name
+        self.track = track
+        self.rating = rating
+        self.rank = rank
+        self.albumId = album
+        self.mediaAssetId = mediaAsset
+        self.time = time
+        self.playCount = playCount
+        
+        self.disc = 0
+        self.lyrics = ""
+        self.comment = ""
+        self.added = 0
+        self.modified = 0
+        self.lastPlayed = 0
+    }
+    
     init(row: Row) throws {
         name = try row.get("name")
         track = try row.get("track")
@@ -30,6 +54,8 @@ final class Song: Model {
         added = try row.get("added")
         modified = try row.get("modified")
         lastPlayed = try row.get("lastPlayed")
+        albumId = try row.get("album_id")
+        mediaAssetId = try row.get("media_asset_id")
     }
 
     func makeRow() throws -> Row {
@@ -46,6 +72,8 @@ final class Song: Model {
         try row.set("added", added)
         try row.set("modified", modified)
         try row.set("lastPlayed", lastPlayed)
+        try row.set("album_id", albumId)
+        try row.set("media_asset_id", mediaAssetId)
         return row
     }
 
@@ -57,9 +85,9 @@ final class Song: Model {
         return siblings()
     }
 
-//    func album() throws -> Album {
-//        return try parent()
-//    }
+    func album() throws -> Album {
+        return try parent(id: albumId).first()!
+    }
 }
 
 extension Song: Preparation {

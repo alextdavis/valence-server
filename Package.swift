@@ -5,7 +5,6 @@ let package = Package(
     targets: [
         Target(name: "App"),
         Target(name: "Run", dependencies: ["App"]),
-        Target(name: "Ingest", dependencies: ["App"]),
     ],
     dependencies: [
         .Package(url: "https://github.com/vapor/vapor.git", Version(2,0,0, prereleaseIdentifiers: ["beta"])),

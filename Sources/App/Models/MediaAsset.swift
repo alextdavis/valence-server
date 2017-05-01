@@ -8,6 +8,12 @@ final class MediaAsset: Model {
     var checksum: String
     var contentType: String
 
+    init(url: String, contentType: String) {
+        self.url = url
+        self.contentType = contentType
+        self.checksum = ""
+    }
+    
     init(row: Row) throws {
         url = try row.get("url")
         checksum = try row.get("checksum")

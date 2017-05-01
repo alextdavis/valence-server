@@ -6,6 +6,20 @@ final class Artist: Model {
     let storage = Storage()
     var name: String
 
+    static func findOrCreate(name: String) throws -> Artist {
+        if let artist = try Artist.makeQuery().filter("name", name).first() {
+            return artist
+        } else {
+            let artist = Artist(name: name)
+            try artist.save()
+            return artist
+        }
+    }
+    
+    init(name: String) {
+        self.name = name
+    }
+    
     init(row: Row) throws {
         name = try row.get("name")
     }
