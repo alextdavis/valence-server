@@ -11,7 +11,7 @@
       "package": "Bits",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/bits.git",
-      "version": "1.0.0-beta.4"
+      "version": "1.0.0-beta.5"
     },
     {
       "package": "CMySQL",
@@ -35,7 +35,7 @@
       "package": "Core",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/core.git",
-      "version": "2.0.0-beta.3"
+      "version": "2.0.0-beta.7"
     },
     {
       "package": "Crypto",
@@ -65,7 +65,7 @@
       "package": "Fluent",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/fluent.git",
-      "version": "2.0.0-beta.22"
+      "version": "2.0.0-beta.25"
     },
     {
       "package": "FluentProvider",
@@ -128,6 +128,12 @@
       "version": "1.0.0-beta.3"
     },
     {
+      "package": "Regex",
+      "reason": null,
+      "repositoryURL": "https://github.com/crossroadlabs/Regex.git",
+      "version": "1.0.0"
+    },
+    {
       "package": "Routing",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/routing.git",
@@ -155,7 +161,7 @@
       "package": "Vapor",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/vapor.git",
-      "version": "2.0.0-beta.18"
+      "version": "2.0.0-beta.22"
     }
   ],
   "version": 1

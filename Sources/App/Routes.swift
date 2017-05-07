@@ -19,7 +19,7 @@ class Routes: RouteCollection {
             
             let song = Song.init(name: "Dummy Song", track: 1, rating: 0, rank: 2, album: album.id!, mediaAsset: media_asset.id!, time: 0)
             try song.save()
-            return ""
+            return "Finished"
         }
         try builder.resource("posts", PostController.self)
     }
