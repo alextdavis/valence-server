@@ -11,7 +11,7 @@
       "package": "Bits",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/bits.git",
-      "version": "1.0.0-beta.5"
+      "version": "1.0.0"
     },
     {
       "package": "CMySQL",
@@ -35,7 +35,7 @@
       "package": "Core",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/core.git",
-      "version": "2.0.0-beta.7"
+      "version": "2.0.0"
     },
     {
       "package": "Crypto",
@@ -47,13 +47,13 @@
       "package": "Debugging",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/debugging.git",
-      "version": "1.0.0-beta.1"
+      "version": "1.0.0"
     },
     {
       "package": "Engine",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/engine.git",
-      "version": "2.0.0-beta.2"
+      "version": "2.0.0-beta.7"
     },
     {
       "package": "ErbProvider",
@@ -65,25 +65,19 @@
       "package": "Fluent",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/fluent.git",
-      "version": "2.0.0-beta.25"
+      "version": "2.0.0-beta.28"
     },
     {
       "package": "FluentProvider",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/fluent-provider.git",
-      "version": "1.0.0-beta.13"
+      "version": "1.0.0-beta.15"
     },
     {
       "package": "JSON",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/json.git",
-      "version": "2.0.0-beta.1"
-    },
-    {
-      "package": "Jay",
-      "reason": null,
-      "repositoryURL": "https://github.com/DanToml/Jay.git",
-      "version": "1.0.1"
+      "version": "2.0.0-beta.5"
     },
     {
       "package": "Multipart",
@@ -113,13 +107,7 @@
       "package": "Node",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/node.git",
-      "version": "2.0.0-beta.1"
-    },
-    {
-      "package": "PathIndexable",
-      "reason": null,
-      "repositoryURL": "https://github.com/vapor/path-indexable.git",
-      "version": "2.0.0-beta.1"
+      "version": "2.0.0"
     },
     {
       "package": "Random",
@@ -137,7 +125,7 @@
       "package": "Routing",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/routing.git",
-      "version": "2.0.0-beta.2"
+      "version": "2.0.0-beta.5"
     },
     {
       "package": "SQLite",
@@ -149,19 +137,19 @@
       "package": "Sockets",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/socks.git",
-      "version": "2.0.0-beta.3"
+      "version": "2.0.0-beta.6"
     },
     {
       "package": "TLS",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/tls.git",
-      "version": "2.0.0-beta.2"
+      "version": "2.0.0-beta.4"
     },
     {
       "package": "Vapor",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/vapor.git",
-      "version": "2.0.0-beta.22"
+      "version": "2.0.0-beta.26"
     }
   ],
   "version": 1

@@ -7,7 +7,7 @@ final class Album: Model {
     var name: String
     var year: Int
     
-    static func findOrCreate(name: String) throws -> Album {
+    static func findOrCreate(name: String) throws -> Album? {
         do {
             if let album = try Album.makeQuery().filter("name", name).first() {
                 return album
@@ -18,6 +18,18 @@ final class Album: Model {
         try album.save()
         return album
         
+    }
+
+    static func findOrCreate(json: JSON?) throws -> Album? {
+        var album: Album?
+        if let name = json?.object?["name"]?.string {
+            try album = self.findOrCreate(name: name)
+        }
+        if let year = json?.object?["year"]?.int {
+            album?.year = year
+            try album?.save()
+        }
+        return album
     }
     
     init(name: String, year: Int = 0) {
@@ -37,16 +49,16 @@ final class Album: Model {
         return row
     }
     
-    func artists() throws -> Siblings<Album, Artist, Pivot<Album, Artist>> {
+    var artists: Siblings<Album, Artist, Pivot<Album, Artist>> {
         return siblings()
     }
     
-    func songs() throws -> Children<Album, Song> {
+    var songs: Children<Album, Song> {
         return children()
     }
     
-    //    func tags() throws -> Siblings<Tag> {
-    //        return try siblings()
+    //    var tags: Siblings<Tag> {
+    //        return siblings()
     //    }
     
     func artwork() throws -> MediaAsset? {

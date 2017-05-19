@@ -40,7 +40,36 @@ final class Song: Model {
         self.modified = 0
         self.lastPlayed = 0
     }
-    
+
+    init?(json: JSON?, album: Identifier, mediaAsset: Identifier) {
+        if let jobj = json?.object {
+            guard let name = jobj["name"]?.string,
+                  let track = jobj["track"]?.int,
+                  let rating = jobj["rating"]?.int,
+                  let rank = jobj["rank"]?.int,
+                  let time = jobj["time"]?.int else {
+                return nil
+            }
+            self.name = name
+            self.track = track
+            self.rating = rating
+            self.rank = rank
+            self.albumId = album
+            self.mediaAssetId = mediaAsset
+            self.time = time
+            self.playCount = jobj["play_count"]?.int ?? 0
+
+            self.disc = jobj["disc"]?.int ?? 0
+            self.lyrics = jobj["lyrics"]?.string ?? ""
+            self.comment = jobj["comment"]?.string ?? ""
+            self.added = jobj["added"]?.int ?? 0
+            self.modified = jobj["modified"]?.int ?? 0
+            self.lastPlayed = jobj["last_played"]?.int ?? 0
+        } else {
+            return nil
+        }
+    }
+
     init(row: Row) throws {
         name = try row.get("name")
         track = try row.get("track")
@@ -77,11 +106,11 @@ final class Song: Model {
         return row
     }
 
-    func artists() -> Siblings<Song, Artist, Pivot<Song, Artist>> {
+    var artists: Siblings<Song, Artist, Pivot<Song, Artist>> {
         return siblings()
     }
 
-    func tags() -> Siblings<Song, Tag, Pivot<Song, Tag>> {
+    var tags: Siblings<Song, Tag, Pivot<Song, Tag>> {
         return siblings()
     }
 

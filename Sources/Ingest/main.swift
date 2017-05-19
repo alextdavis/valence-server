@@ -6,6 +6,5 @@ try config.setup()
 let drop = try Droplet(config)
 try drop.setup()
 
-let ingester = Ingester()
-ingester.recursiveIngest("./public/music")
+try Ingester.rubyIngest(runScript: false)
 print("Done!")

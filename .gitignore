@@ -14,3 +14,7 @@ DerivedData/
 # End of https://www.gitignore.io/api/vapor
 
 Public/cdn/*
+.idea
+
+Script/addtl_info.txt
+Script/rb_ingest_data.json

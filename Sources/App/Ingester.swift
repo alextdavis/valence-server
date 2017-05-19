@@ -11,40 +11,55 @@ import Vapor
 import Regex
 
 public class Ingester {
-    private(set) var ignoredFiletypes: Dictionary<String, Int> = Dictionary()
-    private(set) var dupeUrls: [String] = []
-    private(set) var dupeChecksums: [String] = []
-    private var existingMediaChecksums: [String] = []
-    private var existingMediaUrls: [String] = []
-    
-    public init() {
-        
+    enum IngesterError: Error {
+        case fileLoadError
+        case badJson
+        case mediaAssetFail
+        case albumFail
+        case songFail
     }
-    
-    public func recursiveIngest(_ dirPath: String) {
-        if dirPath == "Apple Music" || dirPath == "Voice Memos" {
-            return
+
+    public static func rubyIngest(runScript: Bool = true) throws {
+        if (runScript) {
+            let task = Process()
+            task.launchPath = "./Script/ingest.rb"
+            task.launch()
+            task.waitUntilExit()
         }
-        
-        let dirEnumerator = FileManager.default.enumerator(atPath: dirPath)
-        while let file = dirEnumerator?.nextObject() {
-            let filePath = String(describing: file)
-            print("File: \(filePath)")
-            var isDirectory = ObjCBool(false)
-            FileManager.default.fileExists(atPath: filePath, isDirectory: &isDirectory)
-            if (isDirectory.boolValue) {
-                recursiveIngest(filePath)
-            } else if let match = "\\.(pdf|epub|ibooks|m4b|m4v|m4r|m4p)$".r?.findFirst(in: filePath) {
-                if let ext = match.group(at: 1) {
-                    if ignoredFiletypes[ext] == nil {
-                        ignoredFiletypes[ext] = 0
-                    } else {
-                        ignoredFiletypes[ext]! += 1
-                    }
-                }
-            } else if let match = "\\.(m4a|mp3)$".r?.findFirst(in: filePath) {
-                
+        let data = FileManager.default.contents(atPath: "./Script/rb_ingest_data.json")
+        guard data != nil else {
+            throw IngesterError.fileLoadError
+        }
+        let jsonAry = try JSON.init(bytes: data!.makeBytes()).array
+        guard jsonAry != nil else {
+            throw IngesterError.badJson
+        }
+        for file in jsonAry! {
+            let mediaAsset = MediaAsset(json: file["media_asset"])
+            guard mediaAsset != nil else {
+                throw IngesterError.mediaAssetFail
             }
+            try mediaAsset!.save()
+
+            let album = try Album.findOrCreate(json: file["album"])
+            guard album != nil else {
+                throw IngesterError.albumFail
+            }
+
+            let song = Song(json: file["song"], album: album!.id!, mediaAsset: mediaAsset!.id!)
+            guard song != nil else {
+                throw IngesterError.songFail
+            }
+            try song!.save()
+
+            if let artists = file["artists"]?.array {
+                for artist_name in artists {
+                    let artist = try Artist.findOrCreate(name: artist_name.string!)
+                    try song!.artists.add(artist)
+                    try album!.artists.add(artist)
+                }
+            }
+            print(".", terminator: "")
         }
     }
 }

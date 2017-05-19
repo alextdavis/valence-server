@@ -13,6 +13,24 @@ final class MediaAsset: Model {
         self.contentType = contentType
         self.checksum = ""
     }
+
+    init?(json: JSON?) {
+        if let url = json?.object?["url"]?.string {
+            self.url = url
+        } else { return nil }
+
+        if let contentType = json?.object?["content_type"]?.string {
+            self.contentType = contentType
+        } else {
+            self.contentType = "audio"
+        }
+
+        if let checksum = json?.object?["checksum"]?.string {
+            self.checksum = checksum
+        } else {
+            self.checksum = ""
+        }
+    }
     
     init(row: Row) throws {
         url = try row.get("url")
