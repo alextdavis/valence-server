@@ -24,6 +24,19 @@ extension Sequence {
     }
 }
 
+extension JSON {
+    static func makeFromDict(_ dict: [String: Any?]) -> JSON {
+        var json = JSON()
+        for (k, v) in dict {
+            do {
+                try json.set(k, v)
+            } catch {
+            }
+        }
+        return json
+    }
+}
+
 class Queue<T> {
     private var ary: [T]
     

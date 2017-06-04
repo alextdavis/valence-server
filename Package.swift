@@ -8,9 +8,9 @@ let package = Package(
         Target(name: "Ingest", dependencies: ["App"]),
     ],
     dependencies: [
-        .Package(url: "https://github.com/vapor/vapor.git", Version(2,0,0, prereleaseIdentifiers: ["beta"])),
-        .Package(url: "https://github.com/vapor/fluent-provider.git", Version(1,0,0, prereleaseIdentifiers: ["beta"])),
-        .Package(url: "https://github.com/vapor/mysql-provider.git", Version(2,0,0, prereleaseIdentifiers: ["beta"])),
+        .Package(url: "https://github.com/vapor/vapor.git", majorVersion: 2),
+        .Package(url: "https://github.com/vapor/fluent-provider.git", majorVersion: 1),
+        .Package(url: "https://github.com/vapor/mysql-provider.git", majorVersion: 2),
         .Package(url: "https://github.com/crossroadlabs/Regex.git", majorVersion: 1),
         .Package(url: "../erb-provider", majorVersion: 0),
         

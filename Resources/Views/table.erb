@@ -1,3 +1,4 @@
+<% @cols.map!(&:to_sym) %>
 <table class="songs-table table table-striped table-bordered table-condensed">
   <thead>
   <tr>
@@ -23,36 +24,33 @@
   </thead>
   <tbody>
   <% @songs.each do |s| %>
-      <tr data-id="<%= s.id %>">
+      <tr data-id="<%= s[:id] %>">
         <% @cols.each do |col| %>
             <% case col
                  when :rank %>
-                <td class="row-rank" data-rank="<%= s.rank %>"><!--TODO: Make this use CSS instead?-->
+                <td class="row-rank" data-rank="<%= s[:rank] %>"><!--TODO: Make this use CSS instead?-->
                   <select style="display:none" class="form-control input-sm rank-select">
                     <% (0..3).reverse_each do |i| %>
-                        <option <%= 'selected' if s.rank == i %> value="<%= i %>">
+                        <option <%= 'selected' if s[:rank] == i %> value="<%= i %>">
                           <%= %w(Disable Suppress Neutral Promote)[i] %>
                         </option>
                     <% end %>
                   </select>
-                  <i class="fa fa-<%= %w(close chevron-down minus chevron-up)[s.rank] %>"></i>
+                  <i class="fa fa-<%= %w(close chevron-down minus chevron-up)[s[:rank]] %>"></i>
                 </td>
-            <% when :rating %>
-                <td class="row-rating"><%= stars s.rating %></td>
             <% when :tags %>
                 <td class="row-tags">
                   <span class="tags-list">
-                   <%= s.tags.map { |e| to_html(e) }
-                       .join("&NegativeMediumSpace;") %>
+                   <%= to_html s, :tags %>
                   </span>
                   <i class="fa fa-pencil-square text-primary tag-edit"></i>
                   <span class="tags-edit" style="display: none;">
                     <span style="width: calc(100% - 50px)">
                       <form class="tag-edit-form" style="display: inline">
                         <select multiple class="form-control" style="width: 80%" name="tags[]">
-                          <% Tag.each do |tag| %>
-                              <option value="<%= tag.name %>" <%= 'selected' if s.tags.include?(tag) %>>
-                                <%= tag.name %>
+                          <% @all_tags.each do |tag| %>
+                              <option value="<%= tag %>" <%= 'selected' if s[:tags].include?(tag) %>>
+                                <%= tag %>
                               </option>
                           <% end %>
                         </select>
@@ -64,10 +62,10 @@
             <% when :track %>
                 <td class="row-track">
                   <i class="text-primary fa fa-info-circle"></i>
-                  <span><%= to_html s.send(col) %></span>
+                  <span><%= to_html s, col %></span>
                 </td>
             <% else %>
-                <td class="row-<%= col.to_s %>"><%= to_html s.send(col) %></td>
+                <td class="row-<%= col.to_s %>"><%= to_html s, col %></td>
             <% end %>
         <% end %>
       </tr>

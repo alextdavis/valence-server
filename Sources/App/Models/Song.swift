@@ -16,9 +16,10 @@ final class Song: Model {
     var added: Int
     var modified: Int
     var lastPlayed: Int
-    
+
     let albumId: Identifier
     let mediaAssetId: Identifier
+
     var owner: Parent<Song, Album> {
         return parent(id: albumId)
     }
@@ -32,7 +33,7 @@ final class Song: Model {
         self.mediaAssetId = mediaAsset
         self.time = time
         self.playCount = playCount
-        
+
         self.disc = 0
         self.lyrics = ""
         self.comment = ""
@@ -114,8 +115,12 @@ final class Song: Model {
         return siblings()
     }
 
-    func album() throws -> Album {
-        return try parent(id: albumId).first()!
+    var album: Album? {
+        return try? parent(id: albumId).first()!
+    }
+
+    var audioAsset: MediaAsset? {
+        return try? children().first()!
     }
 }
 
@@ -142,5 +147,55 @@ extension Song: Preparation {
 
     static func revert(_ database: Database) throws {
         try database.delete(self)
+    }
+}
+
+extension Song: JSONRepresentable {
+    func makeJSON() -> JSON {
+        return JSON.makeFromDict([
+                "id": id,
+                "name": name,
+                "track": track,
+                "disc": disc,
+                "rating": rating,
+                "rank": rank,
+                "time": time,
+                "play_count": playCount,
+                "lyrics": lyrics,
+                "comment": comment,
+                "added": added,
+                "modified": modified,
+                "tags": try? tags.all().map({ $0.name }),
+                "last_played": lastPlayed,
+                "album_id": albumId,
+                "media_asset_id": mediaAssetId,
+                "album_name": self.album?.name,
+                "album_year": self.album?.year,
+                "artists": try? self.artists.all().map({ $0.name })
+        ])
+    }
+
+    func makeJSON(cols: [String]) -> JSON {
+        var dict: [String: Any?] =
+                ["id": id,
+                 "name": name,
+                 "track": track,
+                 "rating": rating,
+                 "rank": rank,
+                 "time": time]
+        if cols.contains("tags") {
+            dict["tags"] = try? tags.all().map({ $0.name })
+        }
+        if cols.contains("artists") {
+            dict["artists"] = try? artists.all().map({ $0.makeJSON() })
+        }
+        if cols.contains("album") {
+            dict["album"] = album?.makeJSON()
+        }
+        if cols.contains("year") {
+            dict["year"] = album?.year
+        }
+
+        return JSON.makeFromDict(dict)
     }
 }

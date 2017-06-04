@@ -15,15 +15,15 @@ final class Tag: Model {
         return row
     }
     
-    func songs() -> Siblings<Tag, Song, Pivot<Tag, Song>> {
+    var songs: Siblings<Tag, Song, Pivot<Tag, Song>> {
         return siblings()
     }
     
-    func artists() -> Siblings<Tag, Artist, Pivot<Tag, Artist>> {
+    var artists: Siblings<Tag, Artist, Pivot<Tag, Artist>> {
         return siblings()
     }
     
-    func albums() -> Siblings<Tag, Album, Pivot<Tag, Album>> {
+    var albums: Siblings<Tag, Album, Pivot<Tag, Album>> {
         return siblings()
     }
 }
@@ -38,5 +38,11 @@ extension Tag: Preparation {
     
     static func revert(_ database: Database) throws {
         try database.delete(self)
+    }
+}
+
+extension Tag {
+    func makeJSON() -> JSON {
+        return JSON.makeFromDict(["id": id, "name": name])
     }
 }

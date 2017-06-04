@@ -9,6 +9,7 @@ extension Droplet {
         try collection(PlayerRoutes(self.view))
         try collection(BrowseRoutes(self.view))
         try collection(QueueingRoutes(self.view))
+        try collection(InfoRoutes(self.view))
     }
 }
 

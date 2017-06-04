@@ -11,6 +11,7 @@ import Vapor
 import Regex
 
 public class Ingester {
+
     enum IngesterError: Error {
         case fileLoadError
         case badJson
@@ -55,8 +56,12 @@ public class Ingester {
             if let artists = file["artists"]?.array {
                 for artist_name in artists {
                     let artist = try Artist.findOrCreate(name: artist_name.string!)
-                    try song!.artists.add(artist)
-                    try album!.artists.add(artist)
+                    if try! !song!.artists.isAttached(artist) {
+                        try song!.artists.add(artist)
+                    }
+                    if try! !album!.artists.isAttached(artist) {
+                        try album!.artists.add(artist)
+                    }
                 }
             }
             print(".", terminator: "")

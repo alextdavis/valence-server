@@ -6,18 +6,18 @@ final class Album: Model {
     let storage = Storage()
     var name: String
     var year: Int
-    
+
     static func findOrCreate(name: String) throws -> Album? {
         do {
             if let album = try Album.makeQuery().filter("name", name).first() {
                 return album
             }
         }
-        
+
         let album = Album(name: name)
         try album.save()
         return album
-        
+
     }
 
     static func findOrCreate(json: JSON?) throws -> Album? {
@@ -31,38 +31,38 @@ final class Album: Model {
         }
         return album
     }
-    
+
     init(name: String, year: Int = 0) {
         self.name = name
         self.year = year
     }
-    
+
     init(row: Row) throws {
         name = try row.get("name")
         year = try row.get("year")
     }
-    
+
     func makeRow() throws -> Row {
         var row = Row()
         try row.set("name", name)
         try row.set("year", year)
         return row
     }
-    
+
     var artists: Siblings<Album, Artist, Pivot<Album, Artist>> {
         return siblings()
     }
-    
+
     var songs: Children<Album, Song> {
         return children()
     }
-    
+
     //    var tags: Siblings<Tag> {
     //        return siblings()
     //    }
-    
-    func artwork() throws -> MediaAsset? {
-        return try children().first()
+
+    var artwork: MediaAsset? {
+        return try? children().first()!
     }
 }
 
@@ -75,8 +75,18 @@ extension Album: Preparation {
             albums.foreignId(for: MediaAsset.self, optional: true)
         }
     }
-    
+
     static func revert(_ database: Database) throws {
         try database.delete(self)
+    }
+}
+
+extension Album {
+    func makeJSON() -> JSON {
+        return JSON.makeFromDict(["id": id,
+                                  "name": name,
+                                  "year": year,
+                                  "artists": try? artists.all().map({ $0.makeJSON() }),
+                                  "artwork_url": artwork?.url])
     }
 }

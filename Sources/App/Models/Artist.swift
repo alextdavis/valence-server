@@ -30,20 +30,20 @@ final class Artist: Model {
         return row
     }
 
-    func albums() throws -> Siblings<Artist, Album, Pivot<Artist, Album>> {
+    var albums: Siblings<Artist, Album, Pivot<Artist, Album>> {
         return siblings()
     }
 
-    func songs() throws -> Siblings<Artist, Song, Pivot<Artist, Song>> {
+    var songs: Siblings<Artist, Song, Pivot<Artist, Song>> {
         return siblings()
     }
 
-//    func tags() throws -> Siblings<Tag> {
-//        return try Siblings()
+//    var tags: Siblings<Tag> {
+//        return siblings()
 //    }
 
-    func portrait() throws -> MediaAsset? {
-        return try children().first()
+    var portrait: MediaAsset? {
+        return try? children().first()!
     }
 }
 
@@ -61,4 +61,11 @@ extension Artist: Preparation {
     }
 }
 
-//Does Fluent support having multiple separate relations with a single other model? For example if I have a MediaAssets table, and I want my Song to have an artwork and audio
+extension Artist {
+    func makeJSON() -> JSON {
+        return JSON.makeFromDict(["id": id, "name": name, "portrait_url": portrait?.url])
+    }
+}
+
+//Does Fluent support having multiple separate relations with a single other model?
+// For example if I have a MediaAssets table, and I want my Song to have an artwork and audio

@@ -31,6 +31,10 @@ class Queuer {
             }
         }
     }
+
+    init() {
+        updateViewList([])
+    }
     
     func updateViewList(_ viewList: [Int]) {
         self.viewList = viewList
@@ -104,8 +108,3 @@ class Queuer {
     }
     
 }
-
-//class Globals {
-//    static let queuer = Queuer()
-//    
-//}
