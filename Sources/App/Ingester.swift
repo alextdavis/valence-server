@@ -64,7 +64,7 @@ public class Ingester {
                     }
                 }
             }
-            print(".", terminator: "")
+//            print(".", terminator: "")
         }
     }
 }

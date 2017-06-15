@@ -76,3 +76,33 @@ class Queue<T> {
         return Array(ary.reversed())
     }
 }
+
+extension Sequence where Self.Iterator.Element : Equatable {
+    func contains(keys: [Self.Iterator.Element]) -> Bool {
+        for key in keys {
+            if !self.contains(key) {
+                return false
+            }
+        }
+        return true
+    }
+}
+
+protocol OptionalType {
+    associatedtype Wrapped
+    func map<U>(_ f: (Wrapped) throws -> U) rethrows -> U?
+}
+
+extension Optional: OptionalType {}
+
+extension Sequence where Iterator.Element: OptionalType {
+    func removeNils() -> [Iterator.Element.Wrapped] {
+        var result: [Iterator.Element.Wrapped] = []
+        for element in self {
+            if let element = element.map({ $0 }) {
+                result.append(element)
+            }
+        }
+        return result
+    }
+}

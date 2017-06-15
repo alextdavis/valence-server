@@ -81,12 +81,25 @@ extension Album: Preparation {
     }
 }
 
-extension Album {
+extension Album: JSONRepresentable {
+
+    public enum Selection {
+        case nid, basic, all
+    }
+
     func makeJSON() -> JSON {
-        return JSON.makeFromDict(["id": id,
-                                  "name": name,
-                                  "year": year,
-                                  "artists": try? artists.all().map({ $0.makeJSON() }),
-                                  "artwork_url": artwork?.url])
+        return self.makeJSON(.all)
+    }
+
+    func makeJSON(_ selection: Selection) -> JSON {
+        var dict:[String: Any?] = ["id": id, "name": name]
+        if (selection == .basic || selection == .all) {
+
+            dict["year"] = year
+            dict["artwork_url"] = artwork?.url
+        } else if (selection == .all) {
+            dict["artists"] = try? self.artists.all().map({ $0.makeJSON() })
+        }
+        return JSON.makeFromDict(dict)
     }
 }
