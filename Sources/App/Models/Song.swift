@@ -17,20 +17,23 @@ final class Song: Model {
     var modified: Int
     var lastPlayed: Int
 
-    let albumId: Identifier
-    let mediaAssetId: Identifier
+    var albumId: Identifier
+    var audioAssetId: Identifier
+    var artworkAssetId: Identifier?
 
     var owner: Parent<Song, Album> {
         return parent(id: albumId)
     }
 
-    init(name: String, track: Int, rating: Int, rank: Int, album: Identifier, mediaAsset: Identifier, time: Int, playCount: Int = 0) {
+    init(name: String, track: Int, rating: Int, rank: Int, album: Identifier, audioAssetId: Identifier, time: Int,
+         playCount: Int = 0, artworkAssetId: Identifier? = nil) {
         self.name = name
         self.track = track
         self.rating = rating
         self.rank = rank
         self.albumId = album
-        self.mediaAssetId = mediaAsset
+        self.audioAssetId = audioAssetId
+        self.artworkAssetId = artworkAssetId
         self.time = time
         self.playCount = playCount
 
@@ -42,7 +45,7 @@ final class Song: Model {
         self.lastPlayed = 0
     }
 
-    init?(json: JSON?, album: Identifier, mediaAsset: Identifier) {
+    init?(json: JSON?, album: Identifier, audioAssetId: Identifier, artworkAssetId: Identifier? = nil) {
         if let jobj = json?.object {
             guard let name = jobj["name"]?.string,
                   let track = jobj["track"]?.int,
@@ -56,7 +59,8 @@ final class Song: Model {
             self.rating = rating
             self.rank = rank
             self.albumId = album
-            self.mediaAssetId = mediaAsset
+            self.audioAssetId = audioAssetId
+            self.artworkAssetId = artworkAssetId
             self.time = time
             self.playCount = jobj["play_count"]?.int ?? 0
 
@@ -85,7 +89,8 @@ final class Song: Model {
         modified = try row.get("modified")
         lastPlayed = try row.get("lastPlayed")
         albumId = try row.get("album_id")
-        mediaAssetId = try row.get("media_asset_id")
+        audioAssetId = try row.get("audio_asset_id")
+        artworkAssetId = try row.get("artwork_asset_id")
     }
 
     func makeRow() throws -> Row {
@@ -103,7 +108,8 @@ final class Song: Model {
         try row.set("modified", modified)
         try row.set("lastPlayed", lastPlayed)
         try row.set("album_id", albumId)
-        try row.set("media_asset_id", mediaAssetId)
+        try row.set("audio_asset_id", audioAssetId)
+        try row.set("artwork_asset_id", artworkAssetId)
         return row
     }
 
@@ -111,16 +117,31 @@ final class Song: Model {
         return siblings()
     }
 
+    var artist_str: String {
+        return (try? artists.all().map({ $0.name }).joined(separator: ", ")) ?? ""
+    }
+
     var tags: Siblings<Song, Tag, Pivot<Song, Tag>> {
         return siblings()
     }
 
     var album: Album? {
-        return try? parent(id: albumId).first()!
+        get {
+            return (try? parent(id: albumId).first()) ?? nil
+        }
+        set {
+            if let id = newValue?.id {
+                self.albumId = id
+            }
+        }
     }
 
     var audioAsset: MediaAsset? {
-        return try? children().first()!
+        return (try? MediaAsset.find(self.audioAssetId)) ?? nil
+    }
+
+    var artworkAsset: MediaAsset? {
+        return (try? MediaAsset.find(self.artworkAssetId)) ?? nil
     }
 }
 
@@ -140,7 +161,8 @@ extension Song: Preparation {
             songs.int("added")
             songs.int("modified")
             songs.int("lastPlayed")
-            songs.foreignId(for: MediaAsset.self) //audio_asset
+            songs.foreignId(for: MediaAsset.self, foreignIdKey: "audio_asset_id")
+            songs.foreignId(for: MediaAsset.self, optional: true, foreignIdKey: "artwork_asset_id")
             songs.foreignId(for: Album.self)
         }
     }
@@ -168,10 +190,12 @@ extension Song: JSONRepresentable {
                 "tags": try? tags.all().map({ $0.name }),
                 "last_played": lastPlayed,
                 "album_id": albumId,
-                "media_asset_id": mediaAssetId,
+                "audio_asset_id": audioAssetId,
+                "artwork_asset_id": artworkAssetId,
                 "album_name": self.album?.name,
                 "album_year": self.album?.year,
-                "artists": try? self.artists.all().map({ $0.name })
+                "artists": try? self.artists.all().map({ $0.name }),
+                "artists_ids": try? self.artists.all().map({ $0.id }),
         ])
     }
 

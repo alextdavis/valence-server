@@ -43,7 +43,7 @@ final class Artist: Model {
 //    }
 
     var portrait: MediaAsset? {
-        return try? children().first()!
+        return (try? children().first()) ?? nil
     }
 }
 

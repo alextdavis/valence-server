@@ -47,7 +47,7 @@ public class Ingester {
                 throw IngesterError.albumFail
             }
 
-            let song = Song(json: file["song"], album: album!.id!, mediaAsset: mediaAsset!.id!)
+            let song = Song(json: file["song"], album: album!.id!, audioAssetId: mediaAsset!.id!, artworkAssetId: nil)
             guard song != nil else {
                 throw IngesterError.songFail
             }

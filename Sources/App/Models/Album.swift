@@ -62,7 +62,7 @@ final class Album: Model {
     //    }
 
     var artwork: MediaAsset? {
-        return try? children().first()!
+        return (try? children().first()) ?? nil
     }
 }
 
