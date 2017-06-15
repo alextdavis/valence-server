@@ -3,6 +3,7 @@ require 'json'
 require 'erb'
 require 'set'
 require 'tilt'
+require 'fileutils'
 
 VIEW_DIR = ARGV[0]
 template_name = ARGV[1]
@@ -108,6 +109,7 @@ begin
     outstr = template.render(binder)
   end
 
+  FileUtils.mkdir_p output_filename.sub(/\/[^\/]*$/, '')
   File.write(output_filename, outstr.gsub(/(?<=\A|\n)[ \t]*(?:\n|\z)/, ''))
 
 rescue
