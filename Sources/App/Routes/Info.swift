@@ -48,7 +48,7 @@ class InfoRoutes: Routes {
                             ["layout": false,
                              "@song": song.makeJSON(),
                              "@artists": Artist.all().map({ $0.makeJSON() }),
-                             "@albums": Album.all().map({ $0.makeJSON(.basic) })
+                             "@albums": Album.all().map({ $0.makeJSON(.all) })
                             ])
                 }
 
@@ -86,7 +86,7 @@ class InfoRoutes: Routes {
                         }
                     }
 
-                    song.name = req.data["name"]!.string!
+                    song.name = data["name"]!.string!
                     song.track = data["track"]!.int!
                     song.lyrics = data["lyrics"]!.string!
                     song.comment = data["comment"]!.string!
@@ -152,20 +152,105 @@ class InfoRoutes: Routes {
             }
 
             g.group("album", Album.parameter) { b in
-                b.get("info") { req in
+                b.get("json") { req in
                     return try req.parameters.next(Album.self).makeJSON()
+                }
+
+                b.get("info") { req in
+                    let album = try req.parameters.next(Album.self)
+                    return try self.view.make("info_modal_album.erb",
+                            ["layout": false,
+                             "@album": album.makeJSON(),
+                             "@artists": Artist.all().map({ $0.makeJSON() }),
+                            ])
+                }
+
+                b.post("info") { req in
+                    let album = try req.parameters.next(Album.self)
+                    let data = req.data
+                    guard (data["name"]?.string != nil && data["artists"]?.string != nil
+                            && data["year"]?.int != nil) else {
+                        throw Abort.badRequest
+                    }
+
+                    let currentArtistsIds: [Int] =
+                            (try album.artists.all()).map({ $0.id?.int }).removeNils()
+                    let newArtistsIds: [Int] =
+                            data["artists"]!.array?.map({ $0.int }).removeNils() ?? []
+                    if (currentArtistsIds != newArtistsIds) {
+                        for id in (currentArtistsIds.filter({ !newArtistsIds.contains($0) })) {
+                            guard let artist = try Artist.find(id) else {
+                                throw Abort.badRequest
+                            }
+                            try album.artists.remove(artist)
+                        }
+                        for id in (newArtistsIds.filter({ !currentArtistsIds.contains($0) })) {
+                            guard let artist = try Artist.find(id) else {
+                                throw Abort.badRequest
+                            }
+                            try album.artists.add(artist)
+                        }
+                    }
+
+                    album.name = data["name"]!.string!
+                    album.year = data["year"]!.int!
+
+                    try album.save()
+                    return ""
                 }
             }
 
             g.group("artist", Artist.parameter) { b in
-                b.get("info") { req in
+                b.get("json") { req in
                     return try req.parameters.next(Artist.self).makeJSON()
+                }
+
+                b.get("info") { req in
+                    let artist = try req.parameters.next(Artist.self)
+                    return try self.view.make("info_modal_artist.erb",
+                            ["layout": false,
+                             "@artist": artist.makeJSON()
+                            ])
+                }
+
+                b.post("info") { req in
+                    let artist = try req.parameters.next(Artist.self)
+                    let data = req.data
+                    guard (data["name"]?.string != nil) else {
+                        throw Abort.badRequest
+                    }
+
+                    artist.name = data["name"]!.string!
+
+                    try artist.save()
+                    return "" //TODO: Something  better than `return ""`
                 }
             }
 
             g.group("tag", Tag.parameter) { b in
-                b.get("info") { req in
+                b.get("json") { req in
                     return try req.parameters.next(Tag.self).makeJSON()
+                }
+
+                b.get("info") { req in
+                    let tag = try req.parameters.next(Tag.self)
+                    return try self.view.make("info_modal_tag.erb",
+                            ["layout": false,
+                             "@tag": tag.makeJSON()
+                            ])
+                }
+
+                b.post("info") { req in
+                    let tag = try req.parameters.next(Tag.self)
+                    let data = req.data
+                    guard (data["name"]?.string != nil) else {
+                        throw Abort.badRequest
+                    }
+
+                    tag.name = data["name"]!.string!
+
+                    try tag.save()
+                    return ""
                 }
             }
 
