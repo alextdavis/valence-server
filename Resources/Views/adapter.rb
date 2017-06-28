@@ -1,27 +1,24 @@
-#!/Users/alex/.rvm/rubies/ruby-2.4.0/bin/ruby
+#!/Users/alex/.rvm/rubies/ruby-2.4.1/bin/ruby
 require 'json'
 require 'erb'
 require 'set'
 require 'tilt'
 require 'fileutils'
 
-VIEW_DIR = ARGV[0]
-template_name = ARGV[1]
-output_filename = ARGV[2]
-context = STDIN.read
+require '/Users/alex/Developer/vapor/vtunes/Resources/Views/vapor_tilt_adapter.rb' #TODO: Replace with gem
 
-class Binder
+VIEW_DIR          = ARGV[0]
+template_filename = ARGV[1]
+output_path       = ARGV[2]
+context           = STDIN.read
+
+class MyRenderer < VaporTiltAdapter::Renderer
   def initialize
     @orderables = Set.new(%i(name year rating rank time play_count album)).freeze
   end
 
-  def get_binding
-    return binding()
-  end
-
   def partial(template_name)
     template_name = template_name.to_s + ".erb" if template_name.is_a? Symbol
-    puts "Partial: " + @albums.class.to_s
     Tilt.new(VIEW_DIR + template_name).render(self)
   end
 
@@ -31,13 +28,12 @@ class Binder
     items = nil
     value = hash[key]
     if value.is_a? Array
-      value.map {|v| format_one(v, key)}.join("&NegativeMediumSpace;")
+      value.map { |v| format_one(v, key) }.join("&NegativeMediumSpace;")
     else
       format_one(value, key)
     end
   end
 
-  private
   def format_one(item, key)
     case item
       when Hash
@@ -82,39 +78,6 @@ class Binder
     str << %(</div></div>)
     str
   end
-
 end
 
-begin
-  json = JSON.parse(context, symbolize_names: true) || {}
-  json[:layout] = "layout.erb" unless json.has_key? :layout
-  binder = Binder.new
-  ivars = json.select {|k, _| k[0] == '@'}
-  ivars&.each do |k, v|
-    binder.instance_variable_set(k, v)
-  end
-
-  # bdng = binder.get_binding
-  # json[:lvars]&.each do |k,v|
-  #   bdng.local_variable_set(k, v)
-  # end
-
-  template = Tilt.new(VIEW_DIR + template_name)
-
-  outstr = ""
-
-  if layout = json[:layout]
-    outstr = Tilt.new(VIEW_DIR + layout).render(binder) {template.render(binder)}
-  else
-    outstr = template.render(binder)
-  end
-
-  FileUtils.mkdir_p output_filename.sub(/\/[^\/]*$/, '')
-  File.write(output_filename, outstr.gsub(/(?<=\A|\n)[ \t]*(?:\n|\z)/, ''))
-
-rescue
-  File.write(output_filename,
-             "<h1>Rendering error: #{CGI::escapeHTML($!.message)}</h1>
-  <pre>#{CGI::escapeHTML($!.backtrace.join("\n"))}</pre>")
-  raise $!
-end
+MyRenderer.new.render(VIEW_DIR, template_filename, output_path, context)
