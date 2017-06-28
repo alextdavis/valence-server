@@ -154,7 +154,6 @@ function updatePlayheadEventListeners() {
         ele.siblings().each(function (i, e) {
             $(e).removeClass('active');
         });
-        $(".table-container").data('url', ele.data('url'));
         replace_browse_content(ele.data('url'));
         ele.addClass('active');
     });
@@ -204,6 +203,7 @@ function replace_content(url, ele, callback) {
         url: url,
         success: function (data) {
             ele.html(data);
+            ele.find(".table-container").data('url', url);
             if (callback)
                 callback();
         },

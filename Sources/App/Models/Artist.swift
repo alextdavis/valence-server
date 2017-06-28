@@ -61,11 +61,8 @@ extension Artist: Preparation {
     }
 }
 
-extension Artist {
+extension Artist: JSONRepresentable {
     func makeJSON() -> JSON {
         return JSON.makeFromDict(["id": id, "name": name, "portrait_url": portrait?.url])
     }
 }
-
-//Does Fluent support having multiple separate relations with a single other model?
-// For example if I have a MediaAssets table, and I want my Song to have an artwork and audio

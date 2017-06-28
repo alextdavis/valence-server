@@ -6,25 +6,30 @@ class BrowseRoutes: Routes {
         builder.group("b") { b in
 
             b.get("all") { req in
-                let songs = try Song.makeQuery().limit(100).all()
-//                if let by = req.parameters["by"], let order = req.parameters["order"] { //TODO: Ordering
-//                    songs = try Song.all()
-//                } else {
-//                    songs = try Array(Song.all()[Range(0...100)])
-//                }
+                var query = try Song.makeQuery().limit(100)
+                var orderStrs: [String]? = nil
+
+                if let by = req.query?["by"]?.string, let order = req.query?["order"]?.string {
+                    query = try query.sort(by, (order == "desc") ? .descending : .ascending)
+                    orderStrs = [by, order]
+                    //TODO: Abstract ordering process
+                    //TODO: Implement ordering for things like album/artist of a song.
+                }
+                let songs = try query.all()
 
                 let cols = ["rank", "track", "name", "time", "rating", "artists", "album", "year"]
                 return try self.view.make("table.erb",
                         ["layout": "just_container.erb",
                          "@cols": Node(node: cols),
-                         "@songs": Node(node: songs.map({ $0.makeJSON(cols: cols) }) as [JSON])
+                         "@songs": Node(node: songs.map({ $0.makeJSON(cols: cols) }) as [JSON]),
+                         "@order": orderStrs as Any?,
                         ])
             }
 
             b.get("albums") { req in
                 return try self.view.make("split.erb",
                         ["layout": false,
-                         "@albums": Album.all().map({ $0.makeJSON() }) as [JSON]
+                         "@albums": Album.all().map({ $0.makeJSON() })
                         ])
             }
 
@@ -42,21 +47,48 @@ class BrowseRoutes: Routes {
                         ])
             }
 
-            b.get("artist", Int.parameter) { req in
-                guard let songs = try? Artist.find(try req.parameters.next(Int.self))?.songs.all() else {
-                    throw Abort.notFound
+            b.get("artist", Artist.parameter) { req in
+                var query = try req.parameters.next(Artist.self).songs.makeQuery()
+
+                var orderStrs: [String]? = nil
+                if let by = req.query?["by"]?.string, let order = req.query?["order"]?.string {
+                    query = try query.sort(by, (order == "desc") ? .descending : .ascending)
+                    orderStrs = [by, order]
                 }
+                let songs = try query.all()
+
                 let cols = ["rank", "track", "name", "tags", "time", "rating", "artists", "album"]
                 return try self.view.make("table.erb",
                         ["layout": false,
                          "@all_tags": Node(node: Tag.all().map({ $0.name })),
                          "@cols": Node(node: cols),
-                         "@songs": Node(node: songs!.map({ $0.makeJSON(cols: cols) }) as [JSON])
+                         "@songs": Node(node: songs.map({ $0.makeJSON(cols: cols) }) as [JSON]),
+                         "@order": orderStrs as Any?,
                         ])
             }
 
-            b.get("album", Int.parameter) { req in
-                guard let songs = try? Album.find(try req.parameters.next(Int.self))?.songs.all() else {
+            b.get("album", Album.parameter) { req in
+                var query = try req.parameters.next(Album.self).songs.makeQuery()
+
+                var orderStrs: [String]? = nil
+                if let by = req.query?["by"]?.string, let order = req.query?["order"]?.string {
+                    query = try query.sort(by, (order == "desc") ? .descending : .ascending)
+                    orderStrs = [by, order]
+                }
+                let songs = try query.all()
+
+                let cols = ["rank", "track", "name", "time", "rating", "tags", "artists", "year"]
+                return try self.view.make("table.erb",
+                        ["layout": false,
+                         "@all_tags": Node(node: Tag.all().map({ $0.name })),
+                         "@cols": Node(node: cols),
+                         "@songs": Node(node: songs.map({ $0.makeJSON(cols: cols) }) as [JSON]),
+                         "@order": orderStrs as Any?,
+                        ])
+            }
+
+            b.get("tag", Tag.parameter) { req in
+                guard let songs = try? req.parameters.next(Tag.self).songs.all() else {
                     throw Abort.notFound
                 }
                 let cols = ["rank", "track", "name", "time", "rating", "tags", "artists", "year"]
@@ -64,20 +96,7 @@ class BrowseRoutes: Routes {
                         ["layout": false,
                          "@all_tags": Node(node: Tag.all().map({ $0.name })),
                          "@cols": Node(node: cols),
-                         "@songs": Node(node: songs!.map({ $0.makeJSON(cols: cols) }) as [JSON])
-                        ])
-            }
-
-            b.get("tag", Int.parameter) { req in
-                guard let songs = try? Tag.find(try req.parameters.next(Int.self))?.songs.all() else {
-                    throw Abort.notFound
-                }
-                let cols = ["rank", "track", "name", "time", "rating", "tags", "artists", "year"]
-                return try self.view.make("table.erb",
-                        ["layout": false,
-                         "@all_tags": Node(node: Tag.all().map({ $0.name })),
-                         "@cols": Node(node: cols),
-                         "@songs": Node(node: songs!.map({ $0.makeJSON(cols: cols) }) as [JSON])
+                         "@songs": Node(node: songs.map({ $0.makeJSON(cols: cols) }) as [JSON])
                         ])
             }
 

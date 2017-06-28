@@ -97,8 +97,11 @@ extension Album: JSONRepresentable {
 
             dict["year"] = year
             dict["artwork_url"] = artwork?.url
-        } else if (selection == .all) {
+        }
+        if (selection == .all) {
             dict["artists"] = try? self.artists.all().map({ $0.makeJSON() })
+            dict["artists_ids"] = try? self.artists.all().map({ $0.id })
+
         }
         return JSON.makeFromDict(dict)
     }

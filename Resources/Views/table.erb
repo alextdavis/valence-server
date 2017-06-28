@@ -9,10 +9,11 @@
             <td style="width: 20px;">&numero;</td>
         <% elsif @orderables.include? col %>
             <td class="orderable-header" style="text-align: right;"
-                data-col="<%= col.to_s.downcase %>"
-                data-order="<%= @order[1] if @order && @order[0] == col %>">
-              <span class="pull-left"><%= col.to_s.capitalize %></span>
-              <i class="fa fa-sort<%= '-' + @order[1] if @order && @order[0] == col %>"></i>
+                <% col_s = col.to_s %>
+                data-col="<%= col_s.downcase %>"
+                data-order="<%= @order[1] if @order && @order[0] == col_s %>">
+              <span class="pull-left"><%= col_s.capitalize %></span>
+              <i class="fa fa-sort<%= '-' + @order[1] if @order && @order[0] == col_s %>"></i>
             </td>
         <% else %>
             <td>
