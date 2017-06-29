@@ -1,4 +1,4 @@
 <div class="infobox-inner">
-  <p><%= @song.name %></p>
-  <p><%= @song.album.name %> - <%= @song.artist %></p>
+  <p><%= @song[:name] %></p>
+  <p><%= @song[:album_name] %> - <%= @song[:artists]&.join(', ') %></p>
 </div>

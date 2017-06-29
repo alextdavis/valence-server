@@ -13,6 +13,8 @@ final class Song: Model {
     var playCount: Int
     var lyrics: String
     var comment: String
+    var year: Int
+
     var added: Int
     var modified: Int
     var lastPlayed: Int
@@ -25,8 +27,9 @@ final class Song: Model {
         return parent(id: albumId)
     }
 
-    init(name: String, track: Int, rating: Int, rank: Int, album: Identifier, audioAssetId: Identifier, time: Int,
-         playCount: Int = 0, artworkAssetId: Identifier? = nil) {
+    init(name: String, track: Int, rating: Int, rank: Int, album: Identifier,
+         audioAssetId: Identifier, time: Int, playCount: Int = 0,
+         artworkAssetId: Identifier? = nil) {
         self.name = name
         self.track = track
         self.rating = rating
@@ -40,12 +43,16 @@ final class Song: Model {
         self.disc = 0
         self.lyrics = ""
         self.comment = ""
+        self.year = 0
+
         self.added = 0
         self.modified = 0
         self.lastPlayed = 0
     }
 
-    init?(json: JSON?, album: Identifier, audioAssetId: Identifier, artworkAssetId: Identifier? = nil) {
+    @available(*, deprecated)
+    init?(json: JSON?, album: Identifier, audioAssetId: Identifier,
+          artworkAssetId: Identifier? = nil, year: Int? = nil) {
         if let jobj = json?.object {
             guard let name = jobj["name"]?.string,
                   let track = jobj["track"]?.int,
@@ -67,6 +74,12 @@ final class Song: Model {
             self.disc = jobj["disc"]?.int ?? 0
             self.lyrics = jobj["lyrics"]?.string ?? ""
             self.comment = jobj["comment"]?.string ?? ""
+            if year != nil {
+                self.year = year!
+            } else {
+                self.year = jobj["year"]?.int ?? 0
+            }
+
             self.added = jobj["added"]?.int ?? 0
             self.modified = jobj["modified"]?.int ?? 0
             self.lastPlayed = jobj["last_played"]?.int ?? 0
@@ -85,6 +98,7 @@ final class Song: Model {
         playCount = try row.get("playCount")
         lyrics = try row.get("lyrics")
         comment = try row.get("comment")
+        year = try row.get("year")
         added = try row.get("added")
         modified = try row.get("modified")
         lastPlayed = try row.get("lastPlayed")
@@ -104,6 +118,7 @@ final class Song: Model {
         try row.set("playCount", playCount)
         try row.set("lyrics", lyrics)
         try row.set("comment", comment)
+        try row.set("year", year)
         try row.set("added", added)
         try row.set("modified", modified)
         try row.set("lastPlayed", lastPlayed)
@@ -140,8 +155,12 @@ final class Song: Model {
         return (try? MediaAsset.find(self.audioAssetId)) ?? nil
     }
 
-    var artworkAsset: MediaAsset? {
-        return (try? MediaAsset.find(self.artworkAssetId)) ?? nil
+    var artworkAsset: MediaAsset {
+        if self.artworkAssetId != nil, let ma = (try? MediaAsset.find(self.artworkAssetId)) ?? nil {
+            return ma
+        } else {
+            return album?.artworkAsset ?? MediaAsset.none
+        }
     }
 }
 
@@ -158,6 +177,7 @@ extension Song: Preparation {
             songs.int("playCount")
             songs.string("lyrics")
             songs.string("comment")
+            songs.int("year")
             songs.int("added")
             songs.int("modified")
             songs.int("lastPlayed")
@@ -185,6 +205,7 @@ extension Song: JSONRepresentable {
                 "play_count": playCount,
                 "lyrics": lyrics,
                 "comment": comment,
+                "year": year,
                 "added": added,
                 "modified": modified,
                 "tags": try? tags.all().map({ $0.name }),
@@ -199,7 +220,7 @@ extension Song: JSONRepresentable {
         ])
     }
 
-    func makeJSON(cols: [String]) -> JSON {
+    func makeJSON(cols: [String]) -> JSON { //TODO: Switch to enum system
         var dict: [String: Any?] =
                 ["id": id,
                  "name": name,
@@ -217,7 +238,7 @@ extension Song: JSONRepresentable {
             dict["album"] = album?.makeJSON()
         }
         if cols.contains("year") {
-            dict["year"] = album?.year
+            dict["year"] = year
         }
 
         return JSON.makeFromDict(dict)

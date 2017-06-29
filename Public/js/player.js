@@ -5,7 +5,7 @@ function Player() {
     this.playing = false;
 
     this.update = function (json_string) {
-        this.status = JSON.parse(json_string);
+        this.status = json_string; // JSON.parse(json_string);//don't know why she swallowed the fly
         src = "/i/song/" + this.status.current + "/url";
         if (src != $(this.audio).attr('src')) {
             $(this.audio).attr('src', src);

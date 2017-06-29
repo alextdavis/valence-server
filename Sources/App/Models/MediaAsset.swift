@@ -3,6 +3,8 @@ import FluentProvider
 import HTTP
 
 final class MediaAsset: Model {
+    static let none = try! MediaAsset.find(1)! //TODO: Do better than this singleton thing
+
     let storage = Storage()
     var url: String
     var checksum: String
@@ -55,6 +57,7 @@ extension MediaAsset: Preparation {
             mediaAssets.string("checksum")
             mediaAssets.string("contentType")
         }
+        try MediaAsset(url: "//placehold.it/400", contentType: "image/png").save()
     }
 
     static func revert(_ database: Database) throws {

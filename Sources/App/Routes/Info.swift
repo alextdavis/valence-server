@@ -17,7 +17,7 @@ class InfoRoutes: Routes {
 
                 b.get("artwork") { req in
                     let song = try req.parameters.next(Song.self)
-                    if let url = song.artworkAsset?.url as String? {
+                    if let url = song.artworkAsset.url as String? {
                         return Response(redirect: url)
                     } else {
                         throw Abort(.notFound)
@@ -30,7 +30,7 @@ class InfoRoutes: Routes {
 
                 b.get("infobox") { req in
                     let song = try req.parameters.next(Song.self)
-                    return try self.view.make("song_infobox",
+                    return try self.view.make("song_infobox.erb",
                             ["layout": false,
                              "@song": song.makeJSON()
                             ])
@@ -38,7 +38,7 @@ class InfoRoutes: Routes {
 
                 b.get("infotext") { req in
                     let song = try req.parameters.next(Song.self)
-                    return "\(song.name)\n\(song.album!.name)–\(song.artist_str)"
+                    return "\(song.name)\n\(song.album?.name)–\(song.artist_str)"
                 }
 
                 b.get("info") { req in
@@ -168,8 +168,7 @@ class InfoRoutes: Routes {
                 b.post("info") { req in
                     let album = try req.parameters.next(Album.self)
                     let data = req.data
-                    guard (data["name"]?.string != nil && data["artists"]?.string != nil
-                            && data["year"]?.int != nil) else {
+                    guard (data["name"]?.string != nil && data["artists"]?.string != nil) else {
                         throw Abort.badRequest
                     }
 
@@ -193,7 +192,6 @@ class InfoRoutes: Routes {
                     }
 
                     album.name = data["name"]!.string!
-                    album.year = data["year"]!.int!
 
                     try album.save()
                     return ""

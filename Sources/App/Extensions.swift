@@ -106,3 +106,7 @@ extension Sequence where Iterator.Element: OptionalType {
         return result
     }
 }
+
+class SomeError: Error { //TODO: Proper error instead of SomeError
+    init() {}
+}

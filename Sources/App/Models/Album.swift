@@ -2,10 +2,10 @@ import Vapor
 import FluentProvider
 import HTTP
 
-final class Album: Model {
+class Album: Model {
     let storage = Storage()
     var name: String
-    var year: Int
+    var artworkAssetId: Identifier?
 
     static func findOrCreate(name: String) throws -> Album? {
         do {
@@ -20,33 +20,34 @@ final class Album: Model {
 
     }
 
+    @available(*, deprecated)
     static func findOrCreate(json: JSON?) throws -> Album? {
         var album: Album?
         if let name = json?.object?["name"]?.string {
             try album = self.findOrCreate(name: name)
         }
-        if let year = json?.object?["year"]?.int {
-            album?.year = year
-            try album?.save()
-        }
         return album
     }
 
-    init(name: String, year: Int = 0) {
+    init(name: String, artworkAssetId: Identifier? = nil) {
         self.name = name
-        self.year = year
+        self.artworkAssetId = artworkAssetId
     }
 
-    init(row: Row) throws {
+    required init(row: Row) throws {
         name = try row.get("name")
-        year = try row.get("year")
+        artworkAssetId = try row.get("media_asset_id")
     }
 
     func makeRow() throws -> Row {
         var row = Row()
         try row.set("name", name)
-        try row.set("year", year)
+        try row.set("media_asset_id", artworkAssetId)
         return row
+    }
+
+    var year: Int {
+        return ((try? songs.makeQuery().sort("year", .descending).first()?.year) ?? nil) ?? 0
     }
 
     var artists: Siblings<Album, Artist, Pivot<Album, Artist>> {
@@ -57,12 +58,20 @@ final class Album: Model {
         return children()
     }
 
-    //    var tags: Siblings<Tag> {
-    //        return siblings()
-    //    }
+    var tags: Siblings<Album, Tag, Pivot<Album, Tag>> {
+        return siblings()
+    }
 
-    var artwork: MediaAsset? {
-        return (try? children().first()) ?? nil
+    var artworkAsset: MediaAsset {
+        return ((try? MediaAsset.find(artworkAssetId)) ?? nil) ?? MediaAsset.none
+    }
+
+    public static func make(for parameter: String) throws -> Self { //Shouldn't need to be here
+        let id = Identifier(parameter)
+        guard let found = try find(id) else {
+            throw Abort(.notFound, reason: "No \(Album.self) with that identifier was found.")
+        }
+        return found
     }
 }
 
@@ -71,7 +80,7 @@ extension Album: Preparation {
         try database.create(self) { albums in
             albums.id()
             albums.string("name")
-            albums.int("year")
+            albums.foreignId(for: Artist.self, optional: true, foreignIdKey: "singles_album_artist")
             albums.foreignId(for: MediaAsset.self, optional: true)
         }
     }
@@ -92,11 +101,11 @@ extension Album: JSONRepresentable {
     }
 
     func makeJSON(_ selection: Selection) -> JSON {
-        var dict:[String: Any?] = ["id": id, "name": name]
+        var dict: [String: Any?] = ["id": id, "name": name]
         if (selection == .basic || selection == .all) {
 
             dict["year"] = year
-            dict["artwork_url"] = artwork?.url
+            dict["artwork_url"] = artworkAsset.url
         }
         if (selection == .all) {
             dict["artists"] = try? self.artists.all().map({ $0.makeJSON() })

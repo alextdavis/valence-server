@@ -18,6 +18,7 @@ public class Ingester {
         case mediaAssetFail
         case albumFail
         case songFail
+        case singlesFail
     }
 
     public static func rubyIngest(runScript: Bool = true) throws {
@@ -42,12 +43,25 @@ public class Ingester {
             }
             try mediaAsset!.save()
 
-            let album = try Album.findOrCreate(json: file["album"])
-            guard album != nil else {
-                throw IngesterError.albumFail
+            var album: Album?
+            if file["album"]?["name"]?.string != nil && file["album"]?["name"]?.string != "" {
+                album = try Album.findOrCreate(json: file["album"])
+                guard album != nil else {
+                    throw IngesterError.albumFail
+                }
+            } else {
+                if let ary = file["artists"]?.array,
+                   ary.count > 0,
+                   let artistName = file["artists"]?.array?[0].string,
+                   let artist = try? Artist.findOrCreate(name: artistName) {
+                    album = try SinglesAlbum.findOrCreate(for: artist)
+                } else {
+                    print("Single Fail Inbound for song: \(file["artists"])")
+                    throw IngesterError.singlesFail
+                }
             }
 
-            let song = Song(json: file["song"], album: album!.id!, audioAssetId: mediaAsset!.id!, artworkAssetId: nil)
+            let song = Song(json: file["song"], album: album!.id!, audioAssetId: mediaAsset!.id!, artworkAssetId: nil, year: file["album"]?["year"]?.int)
             guard song != nil else {
                 throw IngesterError.songFail
             }
