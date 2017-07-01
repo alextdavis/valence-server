@@ -1,11 +1,13 @@
 #!/Users/alex/.rvm/rubies/ruby-2.4.0/bin/ruby
 
 BASE_URL = '' # leave this blank here, and use logic in the vapor app to handle remote hosting.
+MUSIC_DIRECTORY = '/Users/alex/Music/Valence'
 
 require 'json'
 require 'bcrypt'
 require 'uri'
 require 'taglib'
+require 'set'
 
 class Ingester
   attr_reader :ignored_filetypes, :dupe_urls, :dupe_checksums
@@ -22,6 +24,7 @@ class Ingester
     @added_info = {}
     @found_titles = []
     @missing_titles = []
+    @artwork_checksums = Set.new
 
     @output_json = []
   end
@@ -41,7 +44,11 @@ class Ingester
       elsif filename.match(/\.(m4a|mp3)$/)
         data = file.read
         checksum = Digest::MD5.base64digest(data)
-        url = URI.escape(file.path.sub(/^.*\/Public\/music/, "#{BASE_URL}/music"))
+        url = file.path
+        if url.length > 254
+          puts "\nFound the one that's too long: \n#{url}\n"
+          next
+        end
 
         if @existing_media_urls.include? url
           @dupe_urls << file.path
@@ -71,12 +78,12 @@ class Ingester
           end
         end
 
-        content_type = {'m4a' => 'audio/mp4a-latm', 'mp3' => 'audio/mpeg'}[$1]
+        content_type = {'m4a' => 'audio/mp4a-latm', 'mp3' => 'audio/mpeg'}[filename.match(/\.(m4a|mp3)$/)[1]]
 
         out = {}
 
-        out[:media_asset] = {url: url, checksum: checksum, content_type: content_type}
-        out[:album] = {name: new_song[:album], year: new_song[:year]}
+        out[:audio_asset] = {url: url, checksum: checksum, content_type: content_type}
+        out[:album] = new_song[:album]
 
         if info_ary = @added_info[new_song[:title]]
           new_song[:rating] = info_ary[2].to_i / 20
@@ -94,12 +101,28 @@ class Ingester
                       rating: new_song[:rating],
                       rank: new_song[:rank],
                       time: new_song[:length],
+                      year: new_song[:year],
                       play_count: new_song[:play_count]}
 
         out[:artists] = []
         new_song[:artist].split(/(?:, | and | & )/).each do |artist|
           out[:artists] << artist
         end
+
+        tmp_filename = "/tmp/me.alextdavis.valence.ingest/artwork.jpg"
+
+        `ffmpeg -y -loglevel fatal -i #{file.path.inspect} #{tmp_filename}`
+        if File.readable?(tmp_filename)
+          artwork_checksum = Digest::MD5.base64digest(File.read(tmp_filename))
+          artwork_filename = "#{MUSIC_DIRECTORY}/Thumbnails/#{artwork_checksum.gsub('/','_').gsub('+','-').gsub('=','')}.jpg"
+          if @artwork_checksums.include? artwork_checksum
+            `rm #{tmp_filename}`
+          else
+            `mv #{tmp_filename} #{artwork_filename}`
+          end
+          out[:artwork_asset] = {url: artwork_filename, checksum: artwork_checksum, content_type: 'image/jpeg'}
+        end
+
         @output_json << out
       else
         puts "Wrong file type: #{filename}"
@@ -121,6 +144,8 @@ end
 
 i = Ingester.new
 i.add_info(File.open("./Script/addtl_info.txt").read)
+`mkdir /tmp/me.alextdavis.valence.ingest`
+
 
 # puts "paste in extra data, followed by ^D"
 # while true

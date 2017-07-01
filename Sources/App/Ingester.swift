@@ -9,13 +9,15 @@
 import Foundation
 import Vapor
 import Regex
+import CryptoSwift
 
 public class Ingester {
 
     enum IngesterError: Error {
         case fileLoadError
         case badJson
-        case mediaAssetFail
+        case audioAssetFail
+        case artworkAssetFail
         case albumFail
         case songFail
         case singlesFail
@@ -37,31 +39,46 @@ public class Ingester {
             throw IngesterError.badJson
         }
         for file in jsonAry! {
-            let mediaAsset = MediaAsset(json: file["media_asset"])
-            guard mediaAsset != nil else {
-                throw IngesterError.mediaAssetFail
+            let audioAsset = MediaAsset(json: file["audio_asset"])
+            guard audioAsset != nil else {
+                print("Failing JSON: \(file)")
+                throw IngesterError.audioAssetFail
             }
-            try mediaAsset!.save()
+            try audioAsset!.save()
+
+            let artworkAsset: MediaAsset?
+            let jsonArtworkAsset = file["artwork_asset"]?.object
+            if let url = jsonArtworkAsset?["url"]?.string,
+               let contentType = jsonArtworkAsset?["content_type"]?.string,
+               let artworkAssetOpt = try? MediaAsset.findOrCreate(url: url, contentType: "image/jpeg") {
+                artworkAsset = artworkAssetOpt
+            } else {
+                print("Artwork Fail for: \(String(describing: file))")
+                artworkAsset = nil
+//                throw IngesterError.artworkAssetFail
+            }
 
             var album: Album?
-            if file["album"]?["name"]?.string != nil && file["album"]?["name"]?.string != "" {
-                album = try Album.findOrCreate(json: file["album"])
+            if file["album"]?.string != nil && file["album"]?.string! != "" {
+                album = try Album.findOrCreate(name: file["album"]!.string!, artworkAssetId: artworkAsset?.id)
                 guard album != nil else {
                     throw IngesterError.albumFail
                 }
             } else {
+                print("Making Singles album for song: \(file["song"]), with album \(file["album"])")
                 if let ary = file["artists"]?.array,
                    ary.count > 0,
                    let artistName = file["artists"]?.array?[0].string,
                    let artist = try? Artist.findOrCreate(name: artistName) {
                     album = try SinglesAlbum.findOrCreate(for: artist)
                 } else {
-                    print("Single Fail Inbound for song: \(file["artists"])")
+                    print("Single Fail Inbound for song: \(String(describing: file["artists"]))")
                     throw IngesterError.singlesFail
                 }
             }
 
-            let song = Song(json: file["song"], album: album!.id!, audioAssetId: mediaAsset!.id!, artworkAssetId: nil, year: file["album"]?["year"]?.int)
+            let song = Song(json: file["song"], album: album!.id!,
+                    audioAssetId: audioAsset!.id!, artworkAssetId: artworkAsset?.id!)
             guard song != nil else {
                 throw IngesterError.songFail
             }

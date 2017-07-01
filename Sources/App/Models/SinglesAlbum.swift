@@ -10,17 +10,13 @@ class SinglesAlbum: Album {
             return nil
         }
         if let album = ((try? self.makeQuery().filter("singles_album_artist" == artist!.id).first()) ?? nil) {
-            print("found")
             return album
         } else {
-            print("creating")
             let album: Album = SinglesAlbum(artist: artist!)
             try album.save()
             try album.artists.add(artist!)
-            print("before create save")
             try album.save()
-            print("after create save")
-            return album as! SinglesAlbum
+            return (album as! SinglesAlbum)
         }
     }
 
@@ -34,6 +30,7 @@ class SinglesAlbum: Album {
             self.singlesAlbumArtist = artist
             try super.init(row: row)
         } else {
+            print("FATAL: SinglesAlbum row not found")
             throw SomeError()
         }
     }

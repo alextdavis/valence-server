@@ -1,4 +1,5 @@
 import Vapor
+import Foundation
 import HTTP
 
 class InfoRoutes: Routes {
@@ -7,9 +8,9 @@ class InfoRoutes: Routes {
             g.group("song", Song.parameter) { b in
                 b.get("url") { req in
                     let song: Song = try req.parameters.next(Song.self)
-                    if let url = song.audioAsset?.url {
-//                        print("file:///Users/alex/Music/iTunes/iTunes Music\(url)")
-                        return Response(redirect: "//localhost:9292\(url)")
+                    if let url = song.audioAsset?.url,
+                       let data = FileManager.default.contents(atPath: url) {
+                        return Response(status: .ok, body: .data(data.makeBytes()))
                     } else {
                         throw Abort(.notFound)
                     }
@@ -17,8 +18,9 @@ class InfoRoutes: Routes {
 
                 b.get("artwork") { req in
                     let song = try req.parameters.next(Song.self)
-                    if let url = song.artworkAsset.url as String? {
-                        return Response(redirect: url)
+                    if let url = song.artworkAsset.url as String?,
+                       let data = FileManager.default.contents(atPath: url) {
+                        return Response(status: .ok, body: .data(data.makeBytes()))
                     } else {
                         throw Abort(.notFound)
                     }
@@ -38,7 +40,7 @@ class InfoRoutes: Routes {
 
                 b.get("infotext") { req in
                     let song = try req.parameters.next(Song.self)
-                    return "\(song.name)\n\(song.album?.name)–\(song.artist_str)"
+                    return "\(song.name)\n\(String(describing: song.album?.name))–\(String(describing: song.artist_str))"
                 }
 
                 b.get("info") { req in
@@ -154,6 +156,16 @@ class InfoRoutes: Routes {
             g.group("album", Album.parameter) { b in
                 b.get("json") { req in
                     return try req.parameters.next(Album.self).makeJSON()
+                }
+
+                b.get("artwork") { req in
+                    let album = try req.parameters.next(Album.self)
+                    if let url = album.artworkAsset.url as String?,
+                       let data = FileManager.default.contents(atPath: url) {
+                        return Response(status: .ok, body: .data(data.makeBytes()))
+                    } else {
+                        throw Abort(.notFound)
+                    }
                 }
 
                 b.get("info") { req in

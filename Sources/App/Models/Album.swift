@@ -7,26 +7,17 @@ class Album: Model {
     var name: String
     var artworkAssetId: Identifier?
 
-    static func findOrCreate(name: String) throws -> Album? {
+    static func findOrCreate(name: String, artworkAssetId: Identifier? = nil) throws -> Album? {
         do {
             if let album = try Album.makeQuery().filter("name", name).first() {
                 return album
             }
         }
 
-        let album = Album(name: name)
+        let album = Album(name: name, artworkAssetId: artworkAssetId)
         try album.save()
         return album
 
-    }
-
-    @available(*, deprecated)
-    static func findOrCreate(json: JSON?) throws -> Album? {
-        var album: Album?
-        if let name = json?.object?["name"]?.string {
-            try album = self.findOrCreate(name: name)
-        }
-        return album
     }
 
     init(name: String, artworkAssetId: Identifier? = nil) {

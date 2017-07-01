@@ -1,6 +1,8 @@
 import Vapor
 import FluentProvider
 import HTTP
+import Foundation
+import CryptoSwift
 
 final class MediaAsset: Model {
     static let none = try! MediaAsset.find(1)! //TODO: Do better than this singleton thing
@@ -10,30 +12,52 @@ final class MediaAsset: Model {
     var checksum: String
     var contentType: String
 
-    init(url: String, contentType: String) {
+    static func findOrCreate(url: String, contentType: String) throws -> MediaAsset {
+        if let checksum = FileManager.default.contents(atPath: url)?.md5().base64EncodedString() {
+            if let ma = ((try? MediaAsset.makeQuery().filter("checksum", checksum).first()) ?? nil) {
+                return ma
+            } else {
+                let ma = try MediaAsset(url: url, contentType: contentType)
+                try ma.save()
+                return ma
+            }
+        } else {
+            print("FATAL: MediaAsset findOrCreate failure")
+            throw SomeError()
+        }
+    }
+
+    init(url: String, contentType: String) throws {
+//        print("init MediaAsset with URL: \(url)")
+
         self.url = url
         self.contentType = contentType
-        self.checksum = ""
-    }
-
-    init?(json: JSON?) {
-        if let url = json?.object?["url"]?.string {
-            self.url = url
-        } else { return nil }
-
-        if let contentType = json?.object?["content_type"]?.string {
-            self.contentType = contentType
-        } else {
-            self.contentType = "audio"
-        }
-
-        if let checksum = json?.object?["checksum"]?.string {
-            self.checksum = checksum
-        } else {
+        if contentType.contains("audio") {
             self.checksum = ""
+        } else {
+            if let checksum = FileManager.default.contents(atPath: url)?.md5() {
+                self.checksum = checksum.base64EncodedString()
+            } else {
+                print("FATAL: MediaAsset file not found")
+                throw SomeError()
+            }
         }
     }
-    
+
+    convenience init?(json: JSON?) {
+        if let url = json?.object?["url"]?.string {
+            if let contentType = json?.object?["content_type"]?.string {
+                do {
+                    try self.init(url: url, contentType: contentType)
+                    return
+                } catch {
+                    return nil
+                }
+            }
+        }
+        return nil
+    }
+
     init(row: Row) throws {
         url = try row.get("url")
         checksum = try row.get("checksum")
@@ -57,7 +81,8 @@ extension MediaAsset: Preparation {
             mediaAssets.string("checksum")
             mediaAssets.string("contentType")
         }
-        try MediaAsset(url: "//placehold.it/400", contentType: "image/png").save()
+        let VALENCE_DIR = "/Users/alex/Music/Valence"
+        try MediaAsset(url: "\(VALENCE_DIR)/Thumbnails/none.jpg", contentType: "image/png").save()
     }
 
     static func revert(_ database: Database) throws {

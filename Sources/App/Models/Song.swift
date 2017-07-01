@@ -52,7 +52,7 @@ final class Song: Model {
 
     @available(*, deprecated)
     init?(json: JSON?, album: Identifier, audioAssetId: Identifier,
-          artworkAssetId: Identifier? = nil, year: Int? = nil) {
+          artworkAssetId: Identifier? = nil) {
         if let jobj = json?.object {
             guard let name = jobj["name"]?.string,
                   let track = jobj["track"]?.int,
@@ -74,11 +74,7 @@ final class Song: Model {
             self.disc = jobj["disc"]?.int ?? 0
             self.lyrics = jobj["lyrics"]?.string ?? ""
             self.comment = jobj["comment"]?.string ?? ""
-            if year != nil {
-                self.year = year!
-            } else {
-                self.year = jobj["year"]?.int ?? 0
-            }
+            self.year = jobj["year"]?.int ?? 0
 
             self.added = jobj["added"]?.int ?? 0
             self.modified = jobj["modified"]?.int ?? 0

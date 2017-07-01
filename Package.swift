@@ -12,6 +12,7 @@ let package = Package(
         .Package(url: "https://github.com/vapor/fluent-provider.git", majorVersion: 1),
         .Package(url: "https://github.com/vapor-community/postgresql-provider.git", majorVersion: 2),
         .Package(url: "https://github.com/crossroadlabs/Regex.git", majorVersion: 1),
+        .Package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", majorVersion: 0),
         .Package(url: "../erb-provider", majorVersion: 0),
         
     ],
