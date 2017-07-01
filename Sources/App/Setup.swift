@@ -1,7 +1,7 @@
 @_exported import Vapor
 import FluentProvider
 import ErbProvider
-import MySQLProvider
+import PostgreSQLProvider
 
 extension Droplet {
     public func setup() throws {
@@ -17,7 +17,7 @@ extension Config {
     public func setup() throws {
         try addProvider(FluentProvider.Provider.self)
         try addProvider(ErbProvider.Provider.self)
-        try addProvider(MySQLProvider.Provider.self)
+        try addProvider(PostgreSQLProvider.Provider.self)
         
         preparations.append(MediaAsset.self)
         preparations.append(Artist.self)

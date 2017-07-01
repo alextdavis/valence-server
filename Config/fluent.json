@@ -1,5 +1,5 @@
 {
-    "driver": "mysql",
+    "driver": "postgresql",
     
     "//": "Naming convention to use for creating foreign id keys,",
     "//": "e.g., `user_id`",

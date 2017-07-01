@@ -14,9 +14,9 @@
       "version": "1.0.0"
     },
     {
-      "package": "CMySQL",
+      "package": "CPostgreSQL",
       "reason": null,
-      "repositoryURL": "https://github.com/vapor/cmysql.git",
+      "repositoryURL": "https://github.com/vapor-community/cpostgresql.git",
       "version": "2.0.0"
     },
     {
@@ -42,6 +42,12 @@
       "reason": null,
       "repositoryURL": "https://github.com/vapor/crypto.git",
       "version": "2.0.0"
+    },
+    {
+      "package": "CryptoSwift",
+      "reason": null,
+      "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
+      "version": "0.6.9"
     },
     {
       "package": "Debugging",
@@ -86,27 +92,27 @@
       "version": "2.0.0"
     },
     {
-      "package": "MySQL",
-      "reason": null,
-      "repositoryURL": "https://github.com/vapor/mysql.git",
-      "version": "2.0.0"
-    },
-    {
-      "package": "MySQLDriver",
-      "reason": null,
-      "repositoryURL": "https://github.com/vapor/mysql-driver.git",
-      "version": "2.0.0"
-    },
-    {
-      "package": "MySQLProvider",
-      "reason": null,
-      "repositoryURL": "https://github.com/vapor/mysql-provider.git",
-      "version": "2.0.0"
-    },
-    {
       "package": "Node",
       "reason": null,
       "repositoryURL": "https://github.com/vapor/node.git",
+      "version": "2.0.0"
+    },
+    {
+      "package": "PostgreSQL",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor-community/postgresql.git",
+      "version": "2.0.2"
+    },
+    {
+      "package": "PostgreSQLDriver",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/postgresql-driver.git",
+      "version": "2.0.1"
+    },
+    {
+      "package": "PostgreSQLProvider",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor-community/postgresql-provider.git",
       "version": "2.0.0"
     },
     {
