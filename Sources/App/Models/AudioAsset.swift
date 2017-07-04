@@ -4,37 +4,34 @@ import HTTP
 import Foundation
 import CryptoSwift
 
-final class MediaAsset: Model {
-    static let none = try! MediaAsset.find(1)! //TODO: Do better than this singleton thing
+final class AudioAsset: Model {
+    static var calculateChecksums: Bool = false
 
     let storage = Storage()
     var url: String
-    var checksum: String
+    var checksum: String?
     var contentType: String
 
-    static func findOrCreate(url: String, contentType: String) throws -> MediaAsset {
-        if let checksum = FileManager.default.contents(atPath: url)?.md5().base64EncodedString() {
-            if let ma = ((try? MediaAsset.makeQuery().filter("checksum", checksum).first()) ?? nil) {
-                return ma
+    static func findOrCreate(url: String, contentType: String) throws -> AudioAsset {
+        if calculateChecksums {
+            if let checksum = FileManager.default.contents(atPath: url)?.md5().base64EncodedString() {
+                if let ma = ((try? AudioAsset.makeQuery().filter("checksum", checksum).first()) ?? nil) {
+                    return ma
+                }
             } else {
-                let ma = try MediaAsset(url: url, contentType: contentType)
-                try ma.save()
-                return ma
+                print("FATAL: AudioAsset findOrCreate failure")
+                throw SomeError()
             }
-        } else {
-            print("FATAL: MediaAsset findOrCreate failure")
-            throw SomeError()
         }
+        let ma = try AudioAsset(url: url, contentType: contentType)
+        try ma.save()
+        return ma
     }
 
     init(url: String, contentType: String) throws {
-//        print("init MediaAsset with URL: \(url)")
-
         self.url = url
         self.contentType = contentType
-        if contentType.contains("audio") {
-            self.checksum = ""
-        } else {
+        if AudioAsset.calculateChecksums {
             if let checksum = FileManager.default.contents(atPath: url)?.md5() {
                 self.checksum = checksum.base64EncodedString()
             } else {
@@ -61,28 +58,26 @@ final class MediaAsset: Model {
     init(row: Row) throws {
         url = try row.get("url")
         checksum = try row.get("checksum")
-        contentType = try row.get("contentType")
+        contentType = try row.get("content_type")
     }
 
     func makeRow() throws -> Row {
         var row = Row()
         try row.set("url", url)
         try row.set("checksum", checksum)
-        try row.set("contentType", contentType)
+        try row.set("content_type", contentType)
         return row
     }
 }
 
-extension MediaAsset: Preparation {
+extension AudioAsset: Preparation {
     static func prepare(_ database: Database) throws {
-        try database.create(self) { mediaAssets in
-            mediaAssets.id()
-            mediaAssets.string("url")
-            mediaAssets.string("checksum")
-            mediaAssets.string("contentType")
+        try database.create(self) { audioAssets in
+            audioAssets.id()
+            audioAssets.string("url", length: 512)
+            audioAssets.string("checksum", optional: true)
+            audioAssets.string("content_type")
         }
-        let VALENCE_DIR = "/Users/alex/Music/Valence"
-        try MediaAsset(url: "\(VALENCE_DIR)/Thumbnails/none.jpg", contentType: "image/png").save()
     }
 
     static func revert(_ database: Database) throws {

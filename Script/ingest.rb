@@ -1,7 +1,7 @@
 #!/Users/alex/.rvm/rubies/ruby-2.4.0/bin/ruby
 
-BASE_URL = '' # leave this blank here, and use logic in the vapor app to handle remote hosting.
-MUSIC_DIRECTORY = '/Users/alex/Music/Valence'
+MUSIC_BASE_URL = '//localhost'
+VALENCE_DIR    = '/Users/alex/Music/Valence'
 
 require 'json'
 require 'bcrypt'
@@ -44,9 +44,9 @@ class Ingester
       elsif filename.match(/\.(m4a|mp3)$/)
         data = file.read
         checksum = Digest::MD5.base64digest(data)
-        url = file.path
-        if url.length > 254
-          puts "\nFound the one that's too long: \n#{url}\n"
+        url = URI.escape(file.path.sub(/^.*\/Public\/music/, "#{MUSIC_BASE_URL}/music"))
+        if url.length > 512
+          puts "\nFound url that's too long: \n#{url}\n"
           next
         end
 
@@ -114,7 +114,7 @@ class Ingester
         `ffmpeg -y -loglevel fatal -i #{file.path.inspect} #{tmp_filename}`
         if File.readable?(tmp_filename)
           artwork_checksum = Digest::MD5.base64digest(File.read(tmp_filename))
-          artwork_filename = "#{MUSIC_DIRECTORY}/Thumbnails/#{artwork_checksum.gsub('/','_').gsub('+','-').gsub('=','')}.jpg"
+          artwork_filename = "#{VALENCE_DIR}/Thumbnails/#{artwork_checksum.gsub('/', '_').gsub('+', '-').gsub('=', '')}.jpg"
           if @artwork_checksums.include? artwork_checksum
             `rm #{tmp_filename}`
           else

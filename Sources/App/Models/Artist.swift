@@ -42,7 +42,7 @@ final class Artist: Model {
 //        return siblings()
 //    }
 
-    var portrait: MediaAsset? {
+    var portrait: ImageAsset? {
         return (try? children().first()) ?? nil
     }
 }
@@ -52,7 +52,7 @@ extension Artist: Preparation {
         try database.create(self) { artists in
             artists.id()
             artists.string("name")
-            artists.foreignId(for: MediaAsset.self, optional: true)
+            artists.foreignId(for: ImageAsset.self, optional: true)
         }
     }
 
@@ -63,6 +63,6 @@ extension Artist: Preparation {
 
 extension Artist: JSONRepresentable {
     func makeJSON() -> JSON {
-        return JSON.makeFromDict(["id": id, "name": name, "portrait_url": portrait?.url])
+        return JSON.makeFromDict(["id": id, "name": name])
     }
 }

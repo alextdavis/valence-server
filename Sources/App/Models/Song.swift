@@ -21,7 +21,7 @@ final class Song: Model {
 
     var albumId: Identifier
     var audioAssetId: Identifier
-    var artworkAssetId: Identifier?
+    var imageAssetId: Identifier?
 
     var owner: Parent<Song, Album> {
         return parent(id: albumId)
@@ -36,7 +36,7 @@ final class Song: Model {
         self.rank = rank
         self.albumId = album
         self.audioAssetId = audioAssetId
-        self.artworkAssetId = artworkAssetId
+        self.imageAssetId = artworkAssetId
         self.time = time
         self.playCount = playCount
 
@@ -67,7 +67,7 @@ final class Song: Model {
             self.rank = rank
             self.albumId = album
             self.audioAssetId = audioAssetId
-            self.artworkAssetId = artworkAssetId
+            self.imageAssetId = artworkAssetId
             self.time = time
             self.playCount = jobj["play_count"]?.int ?? 0
 
@@ -100,7 +100,7 @@ final class Song: Model {
         lastPlayed = try row.get("lastPlayed")
         albumId = try row.get("album_id")
         audioAssetId = try row.get("audio_asset_id")
-        artworkAssetId = try row.get("artwork_asset_id")
+        imageAssetId = try row.get("image_asset_id")
     }
 
     func makeRow() throws -> Row {
@@ -120,7 +120,7 @@ final class Song: Model {
         try row.set("lastPlayed", lastPlayed)
         try row.set("album_id", albumId)
         try row.set("audio_asset_id", audioAssetId)
-        try row.set("artwork_asset_id", artworkAssetId)
+        try row.set("image_asset_id", imageAssetId)
         return row
     }
 
@@ -147,15 +147,15 @@ final class Song: Model {
         }
     }
 
-    var audioAsset: MediaAsset? {
-        return (try? MediaAsset.find(self.audioAssetId)) ?? nil
+    var audioAsset: AudioAsset? {
+        return (try? AudioAsset.find(self.audioAssetId)) ?? nil
     }
 
-    var artworkAsset: MediaAsset {
-        if self.artworkAssetId != nil, let ma = (try? MediaAsset.find(self.artworkAssetId)) ?? nil {
+    var artworkAsset: ImageAsset {
+        if self.imageAssetId != nil, let ma = (try? ImageAsset.find(self.imageAssetId)) ?? nil {
             return ma
         } else {
-            return album?.artworkAsset ?? MediaAsset.none
+            return album?.artworkAsset ?? ImageAsset.none
         }
     }
 }
@@ -177,8 +177,8 @@ extension Song: Preparation {
             songs.int("added")
             songs.int("modified")
             songs.int("lastPlayed")
-            songs.foreignId(for: MediaAsset.self, foreignIdKey: "audio_asset_id")
-            songs.foreignId(for: MediaAsset.self, optional: true, foreignIdKey: "artwork_asset_id")
+            songs.foreignId(for: AudioAsset.self, foreignIdKey: "audio_asset_id")
+            songs.foreignId(for: ImageAsset.self, optional: true, foreignIdKey: "image_asset_id")
             songs.foreignId(for: Album.self)
         }
     }
@@ -208,7 +208,7 @@ extension Song: JSONRepresentable {
                 "last_played": lastPlayed,
                 "album_id": albumId,
                 "audio_asset_id": audioAssetId,
-                "artwork_asset_id": artworkAssetId,
+                "image_asset_id": imageAssetId,
                 "album_name": self.album?.name,
                 "album_year": self.album?.year,
                 "artists": try? self.artists.all().map({ $0.name }),

@@ -8,9 +8,8 @@ class InfoRoutes: Routes {
             g.group("song", Song.parameter) { b in
                 b.get("url") { req in
                     let song: Song = try req.parameters.next(Song.self)
-                    if let url = song.audioAsset?.url,
-                       let data = FileManager.default.contents(atPath: url) {
-                        return Response(status: .ok, body: .data(data.makeBytes()))
+                    if let url = song.audioAsset?.url {
+                        return Response(redirect: url)
                     } else {
                         throw Abort(.notFound)
                     }
@@ -18,8 +17,8 @@ class InfoRoutes: Routes {
 
                 b.get("artwork") { req in
                     let song = try req.parameters.next(Song.self)
-                    if let url = song.artworkAsset.url as String?,
-                       let data = FileManager.default.contents(atPath: url) {
+                    if let path = song.artworkAsset.path as String?,
+                       let data = FileManager.default.contents(atPath: path) {
                         return Response(status: .ok, body: .data(data.makeBytes()))
                     } else {
                         throw Abort(.notFound)
@@ -160,8 +159,8 @@ class InfoRoutes: Routes {
 
                 b.get("artwork") { req in
                     let album = try req.parameters.next(Album.self)
-                    if let url = album.artworkAsset.url as String?,
-                       let data = FileManager.default.contents(atPath: url) {
+                    if let path = album.artworkAsset.path as String?,
+                       let data = FileManager.default.contents(atPath: path) {
                         return Response(status: .ok, body: .data(data.makeBytes()))
                     } else {
                         throw Abort(.notFound)

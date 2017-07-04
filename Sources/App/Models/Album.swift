@@ -27,13 +27,13 @@ class Album: Model {
 
     required init(row: Row) throws {
         name = try row.get("name")
-        artworkAssetId = try row.get("media_asset_id")
+        artworkAssetId = try row.get("image_asset_id")
     }
 
     func makeRow() throws -> Row {
         var row = Row()
         try row.set("name", name)
-        try row.set("media_asset_id", artworkAssetId)
+        try row.set("image_asset_id", artworkAssetId)
         return row
     }
 
@@ -53,8 +53,8 @@ class Album: Model {
         return siblings()
     }
 
-    var artworkAsset: MediaAsset {
-        return ((try? MediaAsset.find(artworkAssetId)) ?? nil) ?? MediaAsset.none
+    var artworkAsset: ImageAsset {
+        return ((try? ImageAsset.find(artworkAssetId)) ?? nil) ?? ImageAsset.none
     }
 
     public static func make(for parameter: String) throws -> Self { //Shouldn't need to be here
@@ -72,7 +72,7 @@ extension Album: Preparation {
             albums.id()
             albums.string("name")
             albums.foreignId(for: Artist.self, optional: true, foreignIdKey: "singles_album_artist")
-            albums.foreignId(for: MediaAsset.self, optional: true)
+            albums.foreignId(for: ImageAsset.self, optional: true)
         }
     }
 
@@ -94,14 +94,11 @@ extension Album: JSONRepresentable {
     func makeJSON(_ selection: Selection) -> JSON {
         var dict: [String: Any?] = ["id": id, "name": name]
         if (selection == .basic || selection == .all) {
-
             dict["year"] = year
-            dict["artwork_url"] = artworkAsset.url
         }
         if (selection == .all) {
             dict["artists"] = try? self.artists.all().map({ $0.makeJSON() })
             dict["artists_ids"] = try? self.artists.all().map({ $0.id })
-
         }
         return JSON.makeFromDict(dict)
     }

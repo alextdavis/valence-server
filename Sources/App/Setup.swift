@@ -18,8 +18,9 @@ extension Config {
         try addProvider(FluentProvider.Provider.self)
         try addProvider(ErbProvider.Provider.self)
         try addProvider(PostgreSQLProvider.Provider.self)
-        
-        preparations.append(MediaAsset.self)
+
+        preparations.append(AudioAsset.self)
+        preparations.append(ImageAsset.self)
         preparations.append(Artist.self)
         preparations.append(Album.self)
         preparations.append(Pivot<Album, Artist>.self)

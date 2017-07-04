@@ -39,18 +39,18 @@ public class Ingester {
             throw IngesterError.badJson
         }
         for file in jsonAry! {
-            let audioAsset = MediaAsset(json: file["audio_asset"])
+            let audioAsset = AudioAsset(json: file["audio_asset"])
             guard audioAsset != nil else {
                 print("Failing JSON: \(file)")
                 throw IngesterError.audioAssetFail
             }
             try audioAsset!.save()
 
-            let artworkAsset: MediaAsset?
+            let artworkAsset: ImageAsset?
             let jsonArtworkAsset = file["artwork_asset"]?.object
             if let url = jsonArtworkAsset?["url"]?.string,
                let contentType = jsonArtworkAsset?["content_type"]?.string,
-               let artworkAssetOpt = try? MediaAsset.findOrCreate(url: url, contentType: "image/jpeg") {
+               let artworkAssetOpt = try? ImageAsset.findOrCreate(url: url, contentType: contentType) {
                 artworkAsset = artworkAssetOpt
             } else {
                 print("Artwork Fail for: \(String(describing: file))")
