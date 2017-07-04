@@ -1,6 +1,6 @@
 @_exported import Vapor
 import FluentProvider
-import ErbProvider
+import TiltProvider
 import PostgreSQLProvider
 
 extension Droplet {
@@ -16,7 +16,7 @@ extension Droplet {
 extension Config {
     public func setup() throws {
         try addProvider(FluentProvider.Provider.self)
-        try addProvider(ErbProvider.Provider.self)
+        try addProvider(TiltProvider.Provider.self)
         try addProvider(PostgreSQLProvider.Provider.self)
 
         preparations.append(AudioAsset.self)
