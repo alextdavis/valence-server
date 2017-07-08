@@ -1,7 +1,10 @@
 import Vapor
 import FluentProvider
 import HTTP
-import Foundation // FileManager
+import Foundation
+
+// FileManager
+
 import CryptoSwift
 
 final class ImageAsset: Model {
@@ -78,7 +81,11 @@ extension ImageAsset: Preparation {
             mediaAssets.string("checksum")
             mediaAssets.string("content_type")
         }
+#if os(Linux)
         let VALENCE_DIR = "/home/alex/Music/Valence" // somehow make this global or something
+#else
+        let VALENCE_DIR = "/Users/alex/Music/Valence"
+#endif
         try ImageAsset(path: "\(VALENCE_DIR)/Thumbnails/none.jpg", contentType: "image/png").save()
     }
 

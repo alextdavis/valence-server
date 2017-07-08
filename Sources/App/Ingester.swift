@@ -11,6 +11,13 @@ import Vapor
 import Regex
 import CryptoSwift
 
+#if os(Linux)
+import Glibc
+#else
+import Darwin.C
+#endif
+
+
 public class Ingester {
 
     enum IngesterError: Error {
@@ -65,7 +72,7 @@ public class Ingester {
                     throw IngesterError.albumFail
                 }
             } else {
-                print("Making Singles album for song: \(String(describing: file["song"])), with album \(String(describing: file["album"]))")
+//                print("Making Singles album for song: \(String(describing: file["song"])), with album \(String(describing: file["album"]))")
                 if let ary = file["artists"]?.array,
                    ary.count > 0,
                    let artistName = file["artists"]?.array?[0].string,
@@ -97,6 +104,7 @@ public class Ingester {
                 }
             }
             print(".", terminator: "")
+            fflush(stdout)
         }
     }
 }

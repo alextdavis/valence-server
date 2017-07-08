@@ -10,7 +10,7 @@ function Player() {
         if (src != $(this.audio).attr('src')) {
             $(this.audio).attr('src', src);
         }
-        if (this.status.current != undefined) {
+        if (this.status.current != undefined && this.status.current != 0) {
             replace_content("/i/song/" + this.status.current + "/infobox", this.infobox, undefined);
         } else {
             this.infobox.html(

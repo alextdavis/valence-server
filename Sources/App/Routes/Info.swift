@@ -57,8 +57,7 @@ class InfoRoutes: Routes {
                     let song = try req.parameters.next(Song.self)
                     let data = req.data
                     guard (data["name"]?.string != nil && data["artists"]?.array != nil &&
-                            data["album"]?.int != nil && data["track"]?.int != nil &&
-                            data["lyrics"]?.string != nil && data["comment"]?.string != nil) else {
+                            data["album"]?.int != nil && data["track"]?.int != nil) else {
                         throw Abort.badRequest
                     }
 
@@ -89,8 +88,8 @@ class InfoRoutes: Routes {
 
                     song.name = data["name"]!.string!
                     song.track = data["track"]!.int!
-                    song.lyrics = data["lyrics"]!.string!
-                    song.comment = data["comment"]!.string!
+                    song.lyrics = data["lyrics"]?.string ?? ""
+                    song.comment = data["comment"]?.string ?? ""
 
                     try song.save()
                     return ""

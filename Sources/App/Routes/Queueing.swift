@@ -27,7 +27,7 @@ class QueueingRoutes: Routes {
             default:
                 throw Abort(.badRequest, reason: "improper dispatch: `\(message)`")
             }
-            
+
             return Queuer.q.status
         }
     }

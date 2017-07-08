@@ -1,6 +1,6 @@
 #!/Users/alex/.rvm/rubies/ruby-2.4.0/bin/ruby
 
-MUSIC_BASE_URL = '//localhost'
+MUSIC_BASE_URL = '//10.0.1.10'
 VALENCE_DIR    = '/home/alex/Music/Valence'
 
 require 'json'
@@ -44,7 +44,7 @@ class Ingester
       elsif filename.match(/\.(m4a|mp3)$/)
         data = file.read
         checksum = Digest::MD5.base64digest(data)
-        url = URI.escape(file.path.sub(/^.*\/Public\/music/, "#{MUSIC_BASE_URL}/music"))
+        url = URI.escape(file.path.sub(/^.*\/Music\/iTunes Music/, "#{MUSIC_BASE_URL}/music"))
         if url.length > 512
           puts "\nFound url that's too long: \n#{url}\n"
           next
