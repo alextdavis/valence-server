@@ -2,10 +2,14 @@ import Vapor
 import FluentProvider
 import HTTP
 
-class Album: Model {
+final class Album: Model {
     let storage = Storage()
     var name: String
     var artworkAssetId: Identifier?
+    var singlesAlbumArtist: Identifier?
+    public var isSinglesAlbum: Bool {
+        return singlesAlbumArtist != nil
+    }
 
     static func findOrCreate(name: String, artworkAssetId: Identifier? = nil) throws -> Album? {
         do {
@@ -20,20 +24,42 @@ class Album: Model {
 
     }
 
+    static func findOrCreate(singlesFor artist: Artist?) throws -> Album? {
+        if artist == nil {
+            return nil
+        }
+        if let album = ((try? self.makeQuery().filter("singles_album_artist" == artist!.id).first()) ?? nil) {
+            return album
+        } else {
+            let album = Album(singlesArtist: artist!)
+            try album.save()
+            try album.artists.add(artist!)
+            try album.save()
+            return album
+        }
+    }
+
     init(name: String, artworkAssetId: Identifier? = nil) {
         self.name = name
         self.artworkAssetId = artworkAssetId
     }
 
-    required init(row: Row) throws {
+    convenience init(singlesArtist artist: Artist) {
+        self.init(name: "\(artist.name) - Singles")
+        self.singlesAlbumArtist = artist.id!
+    }
+
+    init(row: Row) throws {
         name = try row.get("name")
         artworkAssetId = try row.get("image_asset_id")
+        singlesAlbumArtist = try row.get("singles_album_artist")
     }
 
     func makeRow() throws -> Row {
         var row = Row()
         try row.set("name", name)
         try row.set("image_asset_id", artworkAssetId)
+        try row.set("singles_album_artist", singlesAlbumArtist)
         return row
     }
 
@@ -55,14 +81,6 @@ class Album: Model {
 
     var artworkAsset: ImageAsset {
         return ((try? ImageAsset.find(artworkAssetId)) ?? nil) ?? ImageAsset.none
-    }
-
-    public static func make(for parameter: String) throws -> Self { //Shouldn't need to be here
-        let id = Identifier(parameter)
-        guard let found = try find(id) else {
-            throw Abort(.notFound, reason: "No \(Album.self) with that identifier was found.")
-        }
-        return found
     }
 }
 

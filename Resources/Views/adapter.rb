@@ -1,11 +1,11 @@
-#!/Users/alex/.rvm/rubies/ruby-2.4.1/bin/ruby
+#!/home/alex/.rvm/rubies/ruby-2.4.1/bin/ruby
 require 'json'
 require 'erb'
 require 'set'
 require 'tilt'
 require 'fileutils'
 
-require '/Users/alex/Developer/vapor/vtunes/Resources/Views/vapor_tilt_adapter.rb' #TODO: Replace with gem
+require '/home/alex/valence/valence-server/Resources/Views/vapor_tilt_adapter.rb' #TODO: Replace with gem
 
 VIEW_DIR          = ARGV[0]
 template_filename = ARGV[1]

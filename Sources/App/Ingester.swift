@@ -53,7 +53,7 @@ public class Ingester {
                let artworkAssetOpt = try? ImageAsset.findOrCreate(url: url, contentType: contentType) {
                 artworkAsset = artworkAssetOpt
             } else {
-                print("Artwork Fail for: \(String(describing: file))")
+//                print("Artwork Fail for: \(String(describing: file))")
                 artworkAsset = nil
 //                throw IngesterError.artworkAssetFail
             }
@@ -65,12 +65,12 @@ public class Ingester {
                     throw IngesterError.albumFail
                 }
             } else {
-                print("Making Singles album for song: \(file["song"]), with album \(file["album"])")
+                print("Making Singles album for song: \(String(describing: file["song"])), with album \(String(describing: file["album"]))")
                 if let ary = file["artists"]?.array,
                    ary.count > 0,
                    let artistName = file["artists"]?.array?[0].string,
                    let artist = try? Artist.findOrCreate(name: artistName) {
-                    album = try SinglesAlbum.findOrCreate(for: artist)
+                    album = try Album.findOrCreate(singlesFor: artist)
                 } else {
                     print("Single Fail Inbound for song: \(String(describing: file["artists"]))")
                     throw IngesterError.singlesFail
@@ -80,6 +80,7 @@ public class Ingester {
             let song = Song(json: file["song"], album: album!.id!,
                     audioAssetId: audioAsset!.id!, artworkAssetId: artworkAsset?.id!)
             guard song != nil else {
+                print(file)
                 throw IngesterError.songFail
             }
             try song!.save()
@@ -95,7 +96,7 @@ public class Ingester {
                     }
                 }
             }
-//            print(".", terminator: "")
+            print(".", terminator: "")
         }
     }
 }

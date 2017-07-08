@@ -1,7 +1,7 @@
 #!/Users/alex/.rvm/rubies/ruby-2.4.0/bin/ruby
 
 MUSIC_BASE_URL = '//localhost'
-VALENCE_DIR    = '/Users/alex/Music/Valence'
+VALENCE_DIR    = '/home/alex/Music/Valence'
 
 require 'json'
 require 'bcrypt'
@@ -78,6 +78,10 @@ class Ingester
           end
         end
 
+        new_song[:title] ||= filename.match(/.*\/(\w+)\.\w+/)&[1]
+        new_song[:title] ||= filename
+        new_song[:artist] ||= "Unknown Artist"
+
         content_type = {'m4a' => 'audio/mp4a-latm', 'mp3' => 'audio/mpeg'}[filename.match(/\.(m4a|mp3)$/)[1]]
 
         out = {}
@@ -105,13 +109,18 @@ class Ingester
                       play_count: new_song[:play_count]}
 
         out[:artists] = []
-        new_song[:artist].split(/(?:, | and | & )/).each do |artist|
+        if new_song == nil
+          puts "Song has no artists. Skipping:"
+          puts new_song.inspect
+        end
+        new_song[:artist]&.split(/(?:, | and | & )/)&.each do |artist|
           out[:artists] << artist
         end
 
         tmp_filename = "/tmp/me.alextdavis.valence.ingest/artwork.jpg"
 
-        `ffmpeg -y -loglevel fatal -i #{file.path.inspect} #{tmp_filename}`
+        unless ARGV[0] == "--no-thumbnails"
+        `ffmpeg -y -loglevel quiet -i #{file.path.inspect} #{tmp_filename}`
         if File.readable?(tmp_filename)
           artwork_checksum = Digest::MD5.base64digest(File.read(tmp_filename))
           artwork_filename = "#{VALENCE_DIR}/Thumbnails/#{artwork_checksum.gsub('/', '_').gsub('+', '-').gsub('=', '')}.jpg"
@@ -121,6 +130,7 @@ class Ingester
             `mv #{tmp_filename} #{artwork_filename}`
           end
           out[:artwork_asset] = {url: artwork_filename, checksum: artwork_checksum, content_type: 'image/jpeg'}
+        end
         end
 
         @output_json << out
@@ -153,7 +163,7 @@ i.add_info(File.open("./Script/addtl_info.txt").read)
 #   break if line == nil
 #   i.add_info(line)
 # end
-i.recursive_ingest(File.expand_path('./Public/music'))
+i.recursive_ingest(File.expand_path('/home/alex/Music/iTunes Music'))
 puts ''
 puts i.ignored_filetypes
 puts i.dupe_urls

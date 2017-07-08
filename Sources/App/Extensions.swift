@@ -1,14 +1,22 @@
-
 //These next two thanks to Nate Cook from http://stackoverflow.com/a/24029847/5870145
+
 extension MutableCollection where Indices.Iterator.Element == Index {
     /// Shuffles the contents of this collection.
     mutating func shuffle() {
         let c = count
-        guard c > 1 else { return }
-        
-        for (firstUnshuffled , unshuffledCount) in zip(indices, stride(from: c, to: 1, by: -1)) {
+        guard c > 1 else {
+            return
+        }
+
+        for (firstUnshuffled, unshuffledCount) in zip(indices, stride(from: c, to: 1, by: -1)) {
+#if os(Linux)
+            let d: IndexDistance = numericCast(random() % (numericCast(unshuffledCount) + 1))
+#else
             let d: IndexDistance = numericCast(arc4random_uniform(numericCast(unshuffledCount)))
-            guard d != 0 else { continue }
+#endif
+            guard d != 0 else {
+                continue
+            }
             let i = index(firstUnshuffled, offsetBy: d)
             swap(&self[firstUnshuffled], &self[i])
         }
@@ -39,45 +47,45 @@ extension JSON {
 
 class Queue<T> {
     private var ary: [T]
-    
+
     init() {
         ary = Array<T>()
     }
-    
+
     init(_ input: [T]) {
         ary = Array(input.reversed())
     }
-    
+
     convenience init(_ input: ArraySlice<T>) {
         self.init(Array(input.reversed()))
     }
-    
+
     public var isEmpty: Bool {
         return ary.isEmpty
     }
-    
+
     public func enqueue(_ ele: T) {
         ary.insert(ele, at: 0)
     }
-    
+
     public func prepend(_ ele: T) {
         ary.append(ele)
     }
-    
+
     public func dequeue() -> T? {
         return ary.popLast()
     }
-    
+
     public func peek() -> T? {
         return ary.last
     }
-    
+
     public func makeArray() -> [T] {
         return Array(ary.reversed())
     }
 }
 
-extension Sequence where Self.Iterator.Element : Equatable {
+extension Sequence where Self.Iterator.Element: Equatable {
     func contains(keys: [Self.Iterator.Element]) -> Bool {
         for key in keys {
             if !self.contains(key) {
@@ -90,10 +98,12 @@ extension Sequence where Self.Iterator.Element : Equatable {
 
 protocol OptionalType {
     associatedtype Wrapped
+
     func map<U>(_ f: (Wrapped) throws -> U) rethrows -> U?
 }
 
-extension Optional: OptionalType {}
+extension Optional: OptionalType {
+}
 
 extension Sequence where Iterator.Element: OptionalType {
     func removeNils() -> [Iterator.Element.Wrapped] {
@@ -108,5 +118,6 @@ extension Sequence where Iterator.Element: OptionalType {
 }
 
 class SomeError: Error { //TODO: Proper error instead of SomeError
-    init() {}
+    init() {
+    }
 }
