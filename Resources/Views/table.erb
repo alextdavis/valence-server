@@ -1,4 +1,5 @@
 <% @cols.map!(&:to_sym) %>
+<% starttime = Time.now %>
 <table class="songs-table table table-striped table-bordered table-condensed">
   <thead>
   <tr>
@@ -78,3 +79,4 @@
     // to the list of options in for other songs. Should be changed so the select comes on-demand
     // via ajax
 </script>
+<h1> Rendered <%= @songs.count %> rows in <%= Time.now - starttime %> seconds</h1>

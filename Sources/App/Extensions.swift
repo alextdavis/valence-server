@@ -43,6 +43,12 @@ extension JSON {
     }
 }
 
+extension Date {
+    static func -(lhs: Date, rhs: Date) -> Double {
+        return lhs.timeIntervalSince1970 - rhs.timeIntervalSince1970
+    }
+}
+
 class Queue<T> {
     private var ary: [T]
 

@@ -26,6 +26,7 @@ class BrowseRoutes: Routes {
             }
 
             b.get("all") { req in
+                let start = Date()
                 var query = try Song.makeQuery().limit(1000)
                 var orderStrs: [String]? = nil
 
@@ -37,16 +38,24 @@ class BrowseRoutes: Routes {
                 } else {
                     query = try query.sort("id", .ascending)
                 }
+                let formQuery = Date()
                 let songs = try query.all()
+                let issueQuery = Date()
                 Queuer.q.updateViewList(songs.map({ $0.id!.int! }))
 
                 let cols = ["rank", "track", "name", "time", "rating", "artists", "album", "year"]
-                return try self.view.make("table.erb",
+                let jsonify = Date()
+                let json = try Node(node: songs.map({ $0.makeJSON(cols: cols) }) as [JSON])
+                let startRender = Date()
+                let retval = try self.view.make("table.erb",
                         ["layout": "just_container.erb",
                          "@cols": Node(node: cols),
-                         "@songs": Node(node: songs.map({ $0.makeJSON(cols: cols) }) as [JSON]),
+                         "@songs": json,
                          "@order": orderStrs as Any?,
                         ])
+                let endRender = Date()
+                print("FormQuery: \(formQuery - start), issueQuery: \(issueQuery - formQuery), jsonify: \(startRender - jsonify) render: \(endRender - startRender)")
+                return retval
             }
 
             b.get("artist", Artist.parameter) { req in
