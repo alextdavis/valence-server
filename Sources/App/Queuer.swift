@@ -21,7 +21,7 @@ class Queuer {
             do {
                 var json = JSON()
                 try json.set("shuffle", shuffling)
-                try json.set("repeating", repeating)
+                try json.set("repeat", repeating)
                 try json.set("queue", queue.makeArray())
                 try json.set("history", history)
                 try json.set("current", current ?? 0)
@@ -88,7 +88,6 @@ class Queuer {
     }
     
     private func generateQueue(_ id: Int? = nil) {
-        queue = Queue()
         isManual = false
         if shuffling {
             var shuffledList = list.shuffled()

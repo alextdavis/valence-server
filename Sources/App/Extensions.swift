@@ -1,5 +1,6 @@
-//These next two thanks to Nate Cook from http://stackoverflow.com/a/24029847/5870145
+import Random
 
+//These next two thanks to Nate Cook from http://stackoverflow.com/a/24029847/5870145
 extension MutableCollection where Indices.Iterator.Element == Index {
     /// Shuffles the contents of this collection.
     mutating func shuffle() {
@@ -9,11 +10,8 @@ extension MutableCollection where Indices.Iterator.Element == Index {
         }
 
         for (firstUnshuffled, unshuffledCount) in zip(indices, stride(from: c, to: 1, by: -1)) {
-#if os(Linux)
-            let d: IndexDistance = numericCast(random() % (numericCast(unshuffledCount) + 1))
-#else
-            let d: IndexDistance = numericCast(arc4random_uniform(numericCast(unshuffledCount)))
-#endif
+//            let d: IndexDistance = numericCast(arc4random_uniform(numericCast(unshuffledCount)))
+            let d: IndexDistance = numericCast(makeRandom(min: 0, max: numericCast(unshuffledCount)-1))
             guard d != 0 else {
                 continue
             }

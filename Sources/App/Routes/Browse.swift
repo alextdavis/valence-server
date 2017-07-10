@@ -26,7 +26,7 @@ class BrowseRoutes: Routes {
             }
 
             b.get("all") { req in
-                var query = try Song.makeQuery().limit(100)
+                var query = try Song.makeQuery().limit(1000)
                 var orderStrs: [String]? = nil
 
                 if let by = req.query?["by"]?.string, let order = req.query?["order"]?.string {
@@ -34,6 +34,8 @@ class BrowseRoutes: Routes {
                     orderStrs = [by, order]
                     //TODO: Abstract ordering process
                     //TODO: Implement ordering for things like album/artist of a song.
+                } else {
+                    query = try query.sort("id", .ascending)
                 }
                 let songs = try query.all()
                 Queuer.q.updateViewList(songs.map({ $0.id!.int! }))
@@ -54,6 +56,8 @@ class BrowseRoutes: Routes {
                 if let by = req.query?["by"]?.string, let order = req.query?["order"]?.string {
                     query = try query.sort(by, (order == "desc") ? .descending : .ascending)
                     orderStrs = [by, order]
+                } else {
+                    query = try query.sort("album_id", .ascending).sort("disc", .ascending).sort("track", .ascending)
                 }
                 let songs = try query.all()
                 Queuer.q.updateViewList(songs.map({ $0.id!.int! }))
@@ -75,6 +79,8 @@ class BrowseRoutes: Routes {
                 if let by = req.query?["by"]?.string, let order = req.query?["order"]?.string {
                     query = try query.sort(by, (order == "desc") ? .descending : .ascending)
                     orderStrs = [by, order]
+                } else {
+                    query = try query.sort("disc", .ascending).sort("track", .ascending)
                 }
                 let songs = try query.all()
                 Queuer.q.updateViewList(songs.map({ $0.id!.int! }))

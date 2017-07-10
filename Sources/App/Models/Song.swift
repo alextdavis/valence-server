@@ -211,7 +211,8 @@ extension Song: JSONRepresentable {
                 "image_asset_id": imageAssetId,
                 "album_name": self.album?.name,
                 "album_year": self.album?.year,
-                "artists": try? self.artists.all().map({ $0.name }),
+                "artists": try? self.artists.all().map({ $0.name }).joined(separator: ", "),
+                "artists_names": try? self.artists.all().map({ $0.name }),
                 "artists_ids": try? self.artists.all().map({ $0.id }),
         ])
     }

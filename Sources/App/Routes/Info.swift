@@ -25,6 +25,16 @@ class InfoRoutes: Routes {
                     }
                 }
 
+                b.get("artwork@2x") { req in //quick & dirty support for java client TODO: Get rid of this route
+                    let song = try req.parameters.next(Song.self)
+                    if let path = song.artworkAsset.path as String?,
+                       let data = FileManager.default.contents(atPath: path) {
+                        return Response(status: .ok, body: .data(data.makeBytes()))
+                    } else {
+                        throw Abort(.notFound)
+                    }
+                }
+
                 b.get("json") { req in
                     return try req.parameters.next(Song.self).makeJSON()
                 }
