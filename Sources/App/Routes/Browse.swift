@@ -25,6 +25,13 @@ class BrowseRoutes: Routes {
                         ])
             }
 
+            b.get("stars") { req in
+                return try self.view.make("split.erb",
+                        ["layout": false,
+                         "@stars": [1, 2, 3, 4, 5]
+                        ])
+            }
+
             b.get("all") { req in
                 let start = Date()
                 var query = try Song.makeQuery().limit(1000)
@@ -115,6 +122,23 @@ class BrowseRoutes: Routes {
 //                        ])
             }
 
+            b.get("star", Int.parameter) { req in
+                let starNo = try req.parameters.next(Int.self)
+                var query = try Song.makeQuery().filter("rating", .greaterThanOrEquals, starNo)
+
+                var orderStrs: (String, String)? = nil
+                if let by = req.query?["by"]?.string, let order = req.query?["order"]?.string {
+                    query = try query.sort(by, (order == "desc") ? .descending : .ascending)
+                    orderStrs = (by, order)
+                } else {
+                    query = try query.sort("album_id", .ascending).sort("disc", .ascending).sort("track", .ascending)
+                }
+                let songs = try query.all()
+                Queuer.q.updateViewList(songs.map({ $0.id!.int! }))
+
+                let cols = ["rank", "track", "name", "time", "rating", "artists", "album", "year"]
+                return try TableRender.render(songs: songs, cols: cols, order: orderStrs)
+            }
 
         }//group
     }
