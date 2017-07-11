@@ -67,7 +67,9 @@ public class Ingester {
 
             var album: Album?
             if file["album"]?.string != nil && file["album"]?.string! != "" {
-                album = try Album.findOrCreate(name: file["album"]!.string!, artworkAssetId: artworkAsset?.id)
+                album = try Album.findOrCreate(name: file["album"]!.string!,
+                        sortArtist: file["artists"]?.array?[0].string ?? "", year: file["song"]?["year"]?.int ?? 0,
+                        artworkAssetId: artworkAsset?.id)
                 guard album != nil else {
                     throw IngesterError.albumFail
                 }

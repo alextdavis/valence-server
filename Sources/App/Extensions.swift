@@ -60,8 +60,8 @@ class Queue<T> {
         ary = Array(input.reversed())
     }
 
-    convenience init(_ input: ArraySlice<T>) {
-        self.init(Array(input.reversed()))
+    init(_ input: ArraySlice<T>) {
+        ary = Array(input.reversed())
     }
 
     public var isEmpty: Bool {

@@ -58,7 +58,7 @@ public final class TableRender {
                 str.append("<td style=\"width: 20px;\">&numero;</td>")
             } else if TableRender.orderables.contains(col) {
                 str.append("<td class=\"orderable-header\" style=\"text-align: right;\"" +
-                        "data-col=\"\(col.lowercased())" +
+                        "data-col=\"\(col.lowercased())\"" +
                         "data-order=\"\(order != nil && order!.0 == col ? order!.1 : "")\">" +
                         "<span class=\"pull-left\">\(col.capitalized)</span>" +
                         "<i class=\"fa fa-sort\(order != nil && order!.0 == col ? "-" + order!.1 : "")\"></i></td>")

@@ -22,3 +22,5 @@ Script/rb_ingest_data.json
 Package.pins
 
 cmake-build-debug/
+
+Script/addtl_info_old\.txt

@@ -5,20 +5,23 @@ import HTTP
 final class Album: Model {
     let storage = Storage()
     var name: String
+    var year: Int
     var artworkAssetId: Identifier?
+    var sortArtist: String
+
     var singlesAlbumArtist: Identifier?
     public var isSinglesAlbum: Bool {
         return singlesAlbumArtist != nil
     }
 
-    static func findOrCreate(name: String, artworkAssetId: Identifier? = nil) throws -> Album? {
+    static func findOrCreate(name: String, sortArtist: String, year: Int = 0, artworkAssetId: Identifier? = nil) throws -> Album? {
         do {
             if let album = try Album.makeQuery().filter("name", name).first() {
                 return album
             }
         }
 
-        let album = Album(name: name, artworkAssetId: artworkAssetId)
+        let album = Album(name: name, sortArtist: sortArtist, year: year, artworkAssetId: artworkAssetId)
         try album.save()
         return album
 
@@ -39,32 +42,34 @@ final class Album: Model {
         }
     }
 
-    init(name: String, artworkAssetId: Identifier? = nil) {
+    init(name: String, sortArtist: String, year: Int = 0, artworkAssetId: Identifier? = nil) {
         self.name = name
+        self.year = year
         self.artworkAssetId = artworkAssetId
+        self.sortArtist = sortArtist
     }
 
     convenience init(singlesArtist artist: Artist) {
-        self.init(name: "\(artist.name) - Singles")
+        self.init(name: "\(artist.name) - Singles", sortArtist: artist.name)
         self.singlesAlbumArtist = artist.id!
     }
 
     init(row: Row) throws {
         name = try row.get("name")
+        year = try row.get("year")
         artworkAssetId = try row.get("image_asset_id")
+        sortArtist = try row.get("sort_artist")
         singlesAlbumArtist = try row.get("singles_album_artist")
     }
 
     func makeRow() throws -> Row {
         var row = Row()
         try row.set("name", name)
+        try row.set("year", year)
         try row.set("image_asset_id", artworkAssetId)
+        try row.set("sort_artist", sortArtist)
         try row.set("singles_album_artist", singlesAlbumArtist)
         return row
-    }
-
-    var year: Int {
-        return ((try? songs.makeQuery().sort("year", .descending).first()?.year) ?? nil) ?? 0
     }
 
     var artists: Siblings<Album, Artist, Pivot<Album, Artist>> {
@@ -89,6 +94,8 @@ extension Album: Preparation {
         try database.create(self) { albums in
             albums.id()
             albums.string("name")
+            albums.int("year")
+            albums.string("sort_artist")
             albums.foreignId(for: Artist.self, optional: true, foreignIdKey: "singles_album_artist")
             albums.foreignId(for: ImageAsset.self, optional: true)
         }
