@@ -1,7 +1,7 @@
 #!/Users/alex/.rvm/rubies/ruby-2.4.0/bin/ruby
 
-MUSIC_BASE_URL = '//10.0.1.10'
-VALENCE_DIR    = '/home/alex/Music/Valence'
+MUSIC_BASE_URL = '//localhost'
+VALENCE_DIR    = Dir.home = '/Music/Valence'
 
 require 'json'
 require 'bcrypt'
@@ -163,7 +163,7 @@ i.add_info(File.open("./Script/addtl_info.txt").read)
 #   break if line == nil
 #   i.add_info(line)
 # end
-i.recursive_ingest(File.expand_path('/home/alex/Music/iTunes Music'))
+i.recursive_ingest(File.expand_path(Dir.home + '/Music/iTunes Music'))
 puts ''
 puts i.ignored_filetypes
 puts i.dupe_urls
