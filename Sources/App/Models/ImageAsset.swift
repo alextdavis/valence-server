@@ -26,7 +26,7 @@ final class ImageAsset: Model {
                 return ma
             }
         } else {
-            print("FATAL: ImageAsset findOrCreate failure")
+            print("FATAL: ImageAsset findOrCreate failure for url: \(String(describing: url))")
             throw SomeError()
         }
     }

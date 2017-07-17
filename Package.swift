@@ -14,6 +14,7 @@ let package = Package(
                 .Package(url: "https://github.com/crossroadlabs/Regex.git", majorVersion: 1),
                 .Package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", majorVersion: 0),
                 .Package(url: "https://github.com/alextdavis/tilt-provider", majorVersion: 0),
+                .Package(url: "https://github.com/jkandzi/Progress.swift", majorVersion: 0),
 
         ],
         exclude: [

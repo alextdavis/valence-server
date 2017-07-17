@@ -10,6 +10,7 @@ import Foundation
 import Vapor
 import Regex
 import CryptoSwift
+import Progress
 
 #if os(Linux)
 import Glibc
@@ -45,7 +46,8 @@ public class Ingester {
         guard jsonAry != nil else {
             throw IngesterError.badJson
         }
-        for file in jsonAry! {
+        var fileIndex = 0
+        for file in Progress(jsonAry!) {
             let audioAsset = AudioAsset(json: file["audio_asset"])
             guard audioAsset != nil else {
                 print("Failing JSON: \(file)")
@@ -67,8 +69,14 @@ public class Ingester {
 
             var album: Album?
             if file["album"]?.string != nil && file["album"]?.string! != "" {
+                let sortArtist: String
+                if (file["artists"]?.array?.count ?? 0) > 0 {
+                    sortArtist = file["artists"]?.array?[0].string ?? ""
+                } else {
+                    sortArtist = ""
+                }
                 album = try Album.findOrCreate(name: file["album"]!.string!,
-                        sortArtist: file["artists"]?.array?[0].string ?? "", year: file["song"]?["year"]?.int ?? 0,
+                        sortArtist: sortArtist, year: file["song"]?["year"]?.int ?? 0,
                         artworkAssetId: artworkAsset?.id)
                 guard album != nil else {
                     throw IngesterError.albumFail
@@ -81,8 +89,9 @@ public class Ingester {
                    let artist = try? Artist.findOrCreate(name: artistName) {
                     album = try Album.findOrCreate(singlesFor: artist)
                 } else {
-                    print("Single Fail Inbound for song: \(String(describing: file["artists"]))")
-                    throw IngesterError.singlesFail
+                    print("Single Fail Inbound for song[\(fileIndex)]: \(String(describing: file["artists"]))")
+                    continue;
+//                    throw IngesterError.singlesFail
                 }
             }
 
@@ -105,8 +114,9 @@ public class Ingester {
                     }
                 }
             }
-            print(".", terminator: "")
-            fflush(stdout)
+//            print(".", terminator: "")
+//            fflush(stdout)
+            fileIndex += 1
         }
     }
 }
