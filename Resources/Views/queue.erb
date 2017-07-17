@@ -1,0 +1,20 @@
+
+<ul>
+  <% @songs.each do |song| %>
+    <li>
+      <div class="media">
+        <div class="media-left">
+          <a href="#">
+            <img class="media-object" src="/i/song/<%= song[:id] %>/artwork"/>
+          </a>
+        </div>
+        <div class="media-body">
+          <h4 class="media-heading"><%= song[:title] %></h4>
+          <%= song[:artists_names].join(", ") %>
+        </div>
+      </div>
+    </li>
+  <% end %>
+</ul>
+
+<%= @songs.inspect %>

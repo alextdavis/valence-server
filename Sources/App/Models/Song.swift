@@ -189,6 +189,24 @@ extension Song: Preparation {
 }
 
 extension Song: JSONRepresentable {
+    public enum Selection: Int {
+        case nid = 1, qlist, all
+    }
+
+    func makeJSON(_ sel: Selection) -> JSON {
+        if sel == .all {
+            return self.makeJSON()
+        }
+        var dict: [String: Any?] =
+                ["id": id,
+                "name": name]
+        if (sel.rawValue > 1) {
+            dict["artists_names"] = try? self.artists.all().map({ $0.name })
+
+        }
+        return JSON.makeFromDict(dict)
+    }
+
     func makeJSON() -> JSON {
         return JSON.makeFromDict([
                 "id": id,
@@ -239,5 +257,21 @@ extension Song: JSONRepresentable {
         }
 
         return JSON.makeFromDict(dict)
+    }
+}
+
+extension Song {
+    static func songs(ids: [Int]) throws -> [Song] {
+        var songs: [Song] = Array()
+        for id in ids {
+            if let song = try Song.find(id) {
+                songs.append(song)
+            }
+        }
+        return songs
+    }
+
+    static func songs(ids queue: Queue<Int>) throws -> [Song] {
+        return try songs(ids: queue.makeArray())
     }
 }

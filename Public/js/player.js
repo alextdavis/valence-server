@@ -12,6 +12,7 @@ function Player() {
         }
         if (this.status.current != undefined && this.status.current != 0) {
             replace_content("/i/song/" + this.status.current + "/infobox", this.infobox, undefined);
+            $("#playhead #artwork").attr('src', "/i/song/" + this.status.current + "/artwork")
         } else {
             this.infobox.html(
                 '<div class="infobox-inner"><img src="http://alextdavis.me/favicon.ico"></div>');
