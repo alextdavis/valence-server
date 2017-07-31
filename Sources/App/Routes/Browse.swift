@@ -32,6 +32,40 @@ class BrowseRoutes: Routes {
                         ])
             }
 
+            b.get("all1") { req in
+                let cols = ["rank", "track", "name", "time", "rating", "artists", "album", "year"]
+                var orderStrs: (String, String)? = nil
+
+                if let by = req.query?["by"]?.string, let order = req.query?["order"]?.string {
+                    orderStrs = (by, order)
+                }
+                let json = try Song.database!.raw("SELECT array_to_json(array_agg(row_to_json(a)))FROM" +
+                        "(SELECT id, name, rank, track, time, rating, year," +
+                        "        (SELECT array_to_json(array_agg(row_to_json(b)))" +
+                        "         FROM (SELECT a.id, a.name " +
+                        "               FROM artists AS a, songs AS s, artist_song AS ass" +
+                        "               WHERE a.id = ass.artist_id AND s.id = ass.song_id AND s.id = songs.id" +
+                        "              ) b)                         artists," +
+                        "        album_id," +
+                        "        (SELECT albums.name" +
+                        "         FROM albums" +
+                        "         WHERE albums.id = songs.album_id) album_name," +
+                        "        (SELECT albums.sort_artist" +
+                        "         FROM albums" +
+                        "         WHERE albums.id = songs.album_id) album_sort_artist" +
+                        "      FROM songs" +
+                        "      WHERE rating = 5" +
+                        "      ORDER BY album_sort_artist, year, album_name, disc, track" +
+                        "     ) a")
+                return try self.view.make("songs_show.erb",
+                        ["layout": false,
+                         "@all_tags": Node(node: Tag.all().map({ $0.name })),
+                         "@cols": Node(node: cols),
+                         "@songs": json[0]?["array_to_json"],
+                         "@order": orderStrs as Any?,
+                        ])
+            }
+
             b.get("all") { req in
                 let start = Date()
                 var query = try Song.makeQuery().limit(1000)
