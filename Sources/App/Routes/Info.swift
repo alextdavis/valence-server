@@ -9,7 +9,7 @@ class InfoRoutes: Routes {
                 b.get("url") { req in
                     let song: Song = try req.parameters.next(Song.self)
                     if let url = song.audioAsset?.url {
-                        return Response(redirect: url)
+                        return Response(redirect: url.replacingOccurrences(of: "10.0.1.10", with: "home.alextdavis.me"))
                     } else {
                         throw Abort(.notFound)
                     }
@@ -25,14 +25,8 @@ class InfoRoutes: Routes {
                     }
                 }
 
-                b.get("artwork@2x") { req in //quick & dirty support for java client TODO: Get rid of this route
-                    let song = try req.parameters.next(Song.self)
-                    if let path = song.artworkAsset.path as String?,
-                       let data = FileManager.default.contents(atPath: path) {
-                        return Response(status: .ok, body: .data(data.makeBytes()))
-                    } else {
-                        throw Abort(.notFound)
-                    }
+                b.get("artwork@2x") { req in
+                    return Response(redirect: req.uri.description.replacingOccurrences(of: "@2x", with: ""))
                 }
 
                 b.get("json") { req in
