@@ -11,5 +11,11 @@ class Routes: RouteCollection {
         builder.get("") { req in
             return try self.view.make("home.erb", ["layout": false])
         }
+
+        builder.group("typeahead") { g in
+            g.get("albums") { req in
+                
+            }
+        }
     }
 }
