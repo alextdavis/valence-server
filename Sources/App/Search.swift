@@ -5,15 +5,16 @@
 import Foundation
 import Vapor
 import FluentProvider
+import Regex
 
 final class Search: Model {
     let storage = Storage()
-    let source: String?
-    let clause: SearchClause
+    let source: String
+    var results: [Int]?
 
-    init(_ clause: SearchClause) {
-        source = nil
-        self.clause = clause
+    init(_ source: String) {
+        self.source = source
+        print(Search.parse(source))
     }
 
     func getJSON() throws -> Node {
@@ -32,23 +33,24 @@ final class Search: Model {
                 "         FROM albums" +
                 "         WHERE albums.id = songs.album_id) album_sort_artist" +
                 "      FROM songs" +
-                "      WHERE \(clause.makeSQL())" +
+                "      WHERE " +
                 "      ORDER BY album_sort_artist, year, album_name, disc, track" +
                 "     ) a")
     }
 
-//    func getIDs() -> [Int] {
-//
-//    }
+    func issueQuery() {
+        results = []
+    }
 
-//    init(parse str: String) {
-//        self.query = str
-//        //do stuff
-//    }
+    func getIDs() -> [Int] {
+        if results == nil {
+            self.issueQuery()
+        }
+        return results!
+    }
 
     init(row: Row) throws {
         source = try row.get("source")
-        clause = NullClause()
     }
 
     func makeRow() throws -> Row {
@@ -57,102 +59,44 @@ final class Search: Model {
         return row
     }
 
-//    private static func parse(_ str: String) -> SearchClause {
-//        switch str {
-//            case "^\\s*(#|\\$|%|@)\\d+\\s*$".r:
-//                let match = "^\\s*(#|\\$|%|@)(\\d+)\\s*$".r!.findFirst(in:str)!
-//                switch match.group(at: 1)! {
-//                    case "#":
-//                        return AlbumClause(match.group(at:2))
-//                }
-//        }
-//    }
-
-}
-
-
-protocol SearchClause {
-    func makeSQL() -> String
-}
-
-class NullClause: SearchClause {
-    func makeSQL() -> String {
-        return "NULL"
-    }
-}
-
-struct AndClause: SearchClause {
-    let lhs: SearchClause
-    let rhs: SearchClause
-
-    init(_ lhs: SearchClause, _ rhs: SearchClause) {
-        self.lhs = lhs
-        self.rhs = rhs
-    }
-
-    func makeSQL() -> String {
-        return "(\(lhs.makeSQL()) AND \(rhs.makeSQL()))"
-    }
-}
-
-struct OrClause: SearchClause {
-    let lhs: SearchClause
-    let rhs: SearchClause
-
-    init(_ lhs: SearchClause, _ rhs: SearchClause) {
-        self.lhs = lhs
-        self.rhs = rhs
+    private static func parse(_ str: String) -> String {
+        var sqlStr = ""
+        let rx = "[@#$%]\\d+|,|and|or|not|:(\\w+) (true|false|([<>=!]=? )?(\\d+)|([=~{] )?(\"[^\"]+\"))|\\(|\\)".r!
+        for token in rx.findAll(in: str) {
+            print(token.matched)
+            switch token.matched {
+            case "@\\d+".r:
+                sqlStr += " artist = \(removeFirstChar(of: token.matched)) "
+            case "#\\d+".r:
+                sqlStr += " tag = \(removeFirstChar(of: token.matched)) "
+            case "$\\d+".r:
+                sqlStr += " song.id = \(removeFirstChar(of: token.matched)) "
+            case "%\\d+".r:
+                sqlStr += " song.album_id = \(removeFirstChar(of: token.matched)) "
+            case "and":
+                sqlStr += " and "
+            case "or", ",":
+                sqlStr += " or "
+            case "not":
+                sqlStr += " not "
+            case "(":
+                sqlStr += "("
+            case ")":
+                sqlStr += ")"
+            case ":(track|disc|rating|rank|time|play_count|year|added|modified|last_played) (= )?\\d+".r:
+                sqlStr += " song.\(token.group(at: 1)!) = \(token.group(at: 4)!) "
+            case ":(name|lyrics|comment) =? \"[^\"]+\"".r:
+                sqlStr += " song.\(token.group(at: 1)!) = \(token.group(at: 6)!)"
+            default:
+                sqlStr += " {{ERR: Invalid clause `\(token.matched)`}} "
+            }
+        }
+        return sqlStr
     }
 
-    func makeSQL() -> String {
-        return "(\(lhs.makeSQL()) OR \(rhs.makeSQL()))"
-    }
-}
-
-struct NotClause: SearchClause {
-    let inner: SearchClause
-
-    init(_ inner: SearchClause) {
-        self.inner = inner
-    }
-
-    func makeSQL() -> String {
-        return "(NOT \(inner.makeSQL()))"
-    }
-}
-
-struct AlbumClause: SearchClause {
-    let id: Int
-
-    init(_ id: Int) {
-        self.id = id
-    }
-
-    func makeSQL() -> String {
-        return "songs.album_id = \(id)"
-    }
-}
-
-struct ArtistClause: SearchClause {
-    let id: Int
-
-    init(_ id: Int) {
-        self.id = id
-    }
-
-    func makeSQL() -> String {
-        return ""
-    }
-}
-
-struct SongClause: SearchClause {
-    let id: Int
-
-    init(_ id: Int) {
-        self.id = id
-    }
-
-    func makeSQL() -> String {
-        return "songs.id = \(id)"
+    private static func removeFirstChar(of str: String) -> String {
+        var mstr = String(str)!
+        mstr.remove(at: mstr.startIndex)
+        return mstr
     }
 }
