@@ -12,9 +12,10 @@ final class Search: Model {
     let source: String
     var results: [Int]?
 
-    init(_ source: String) {
+    init(_ source: String) throws {
         self.source = source
-        print(Search.parse(source))
+        print(try Search.parse(source))
+        results = try Song.database!.raw(try Search.parse(source)).array?.map({ $0["id"]?.int }).flatMap({ $0 })
     }
 
     func getJSON() throws -> Node {
@@ -59,20 +60,21 @@ final class Search: Model {
         return row
     }
 
-    private static func parse(_ str: String) -> String {
-        var sqlStr = ""
+    private static func parse(_ str: String) throws -> String {
+        var sqlStr = "SELECT songs.id FROM songs LEFT JOIN song_tag on songs.id = song_tag.song_id " +
+        "LEFT JOIN artist_song ON songs.id = artist_song.id WHERE "
         let rx = "[@#$%]\\d+|,|and|or|not|:(\\w+) (true|false|([<>=!]=? )?(\\d+)|([=~{] )?(\"[^\"]+\"))|\\(|\\)".r!
         for token in rx.findAll(in: str) {
             print(token.matched)
             switch token.matched {
             case "@\\d+".r:
-                sqlStr += " artist = \(removeFirstChar(of: token.matched)) "
+                sqlStr += " artist_song.artist_id = \(removeFirstChar(of: token.matched)) "
             case "#\\d+".r:
-                sqlStr += " tag = \(removeFirstChar(of: token.matched)) "
+                sqlStr += " song_tag.tag_id = \(removeFirstChar(of: token.matched)) "
             case "$\\d+".r:
-                sqlStr += " song.id = \(removeFirstChar(of: token.matched)) "
+                sqlStr += " songs.id = \(removeFirstChar(of: token.matched)) "
             case "%\\d+".r:
-                sqlStr += " song.album_id = \(removeFirstChar(of: token.matched)) "
+                sqlStr += " songs.album_id = \(removeFirstChar(of: token.matched)) "
             case "and":
                 sqlStr += " and "
             case "or", ",":
@@ -84,11 +86,12 @@ final class Search: Model {
             case ")":
                 sqlStr += ")"
             case ":(track|disc|rating|rank|time|play_count|year|added|modified|last_played) (= )?\\d+".r:
-                sqlStr += " song.\(token.group(at: 1)!) = \(token.group(at: 4)!) "
+                sqlStr += " songs.\(token.group(at: 1)!) = \(token.group(at: 4)!) "
             case ":(name|lyrics|comment) =? \"[^\"]+\"".r:
-                sqlStr += " song.\(token.group(at: 1)!) = \(token.group(at: 6)!)"
+                sqlStr += " songs.\(token.group(at: 1)!) = \(token.group(at: 6)!)"
             default:
-                sqlStr += " {{ERR: Invalid clause `\(token.matched)`}} "
+               print("ERR: Invalid clause `\(token.matched)`}} ")
+                throw SearchError()
             }
         }
         return sqlStr
@@ -99,4 +102,7 @@ final class Search: Model {
         mstr.remove(at: mstr.startIndex)
         return mstr
     }
+}
+
+enum SearchError: Swift.Error {
 }
