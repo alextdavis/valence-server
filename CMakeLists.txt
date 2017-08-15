@@ -7,6 +7,7 @@ add_custom_target(valence_server
         SOURCES Sources
         .build/checkouts/vapor.git--4558353409971932234/Sources
         .build/checkouts/fluent-provider.git-5260370552942322081/Sources
+        .build/checkouts/fluent.git-7735976435448879169/Sources
         .build/checkouts/node.git--8201290811699525911/Sources
         .build/checkouts/engine.git--2531510256373420/Sources
         .build/checkouts/core.git-6872224045443563605/Sources
