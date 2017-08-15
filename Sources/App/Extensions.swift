@@ -69,11 +69,19 @@ class Queue<T> {
     }
 
     public func enqueue(_ ele: T) {
-        ary.insert(ele, at: 0)
+        self.enqueue([ele])
+    }
+
+    public func enqueue(_ eles: [T]) {
+        ary.insert(contentsOf: eles, at: 0)
     }
 
     public func prepend(_ ele: T) {
-        ary.append(ele)
+        self.prepend([ele])
+    }
+
+    public func prepend(_ eles: [T]) {
+        ary.append(contentsOf: eles)
     }
 
     public func dequeue() -> T? {

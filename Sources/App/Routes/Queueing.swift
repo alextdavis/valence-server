@@ -10,8 +10,8 @@ class QueueingRoutes: Routes {
                 Queuer.q.next()
             case "prev":
                 Queuer.q.previous()
-            case "enqueue_now":
-                Queuer.q.enqueueNow((req.data["id"]?.int)!)
+            case "direct_play", "enqueue_now":
+                Queuer.q.directPlay((req.data["id"]?.int)!)
             case "enqueue_next":
                 Queuer.q.enqueueNext((req.data["id"]?.int)!)
             case "enqueue_append":

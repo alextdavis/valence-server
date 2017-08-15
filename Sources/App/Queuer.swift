@@ -1,6 +1,6 @@
 class Queuer {
     public static let q = Queuer()
-    
+
     private(set) var queue = Queue<Int>()
     private(set) var history = Array<Int>()
     private(set) var list = Array<Int>()
@@ -15,7 +15,7 @@ class Queuer {
     private(set) var shuffling = false
     private(set) var repeating = false
     private var isManual = false
-    
+
     var status: JSON {
         get {
             do {
@@ -35,18 +35,18 @@ class Queuer {
     init() {
         updateViewList([])
     }
-    
+
     func updateViewList(_ viewList: [Int]) {
         self.viewList = viewList
     }
-    
+
     func next() {
         if queue.isEmpty {
             generateQueue()
         }
         current = queue.dequeue()
     }
-    
+
     func previous() {
         if history.count > 1 || history[0] != current {
             if current != nil {
@@ -59,34 +59,52 @@ class Queuer {
             current = nil
         }
     }
-    
-    func enqueueNow(_ id: Int) {
+
+    func directPlay(_ id: Int) {
         generateList()
         current = id
         generateQueue(id)
     }
-    
+
+    func directPlay(list: [Int]) {
+        self.list = list
+        if shuffling {
+            current = list.shuffled()[0] //TODO inefficient
+        } else {
+            current = list[0]
+        }
+        generateQueue(current)
+    }
+
     func enqueueNext(_ id: Int) {
+        self.enqueueNext([id])
+    }
+
+    func enqueueNext(_ ids: [Int]) {
         if !isManual {
             queue = Queue()
         }
-        queue.prepend(id)
+        queue.prepend(ids)
     }
-    
+
     func enqueueAppend(_ id: Int) {
+        self.enqueueAppend([id])
+    }
+
+    func enqueueAppend(_ ids: [Int]) {
         if !isManual {
             queue = Queue()
         }
-        queue.enqueue(id)
+        queue.enqueue(ids)
     }
-    
+
     func shuffle() {
         shuffling = !shuffling
-        if shuffling && !isManual && current != nil{
+        if shuffling && !isManual && current != nil {
             generateQueue(current!)
         }
     }
-    
+
     private func generateQueue(_ id: Int? = nil) {
         isManual = false
         if shuffling {
@@ -96,14 +114,14 @@ class Queuer {
             }
             queue = Queue(shuffledList)
         } else if id != nil, let index = list.index(of: id!) {
-            queue = Queue(list[Range((index + 1) ..< list.count)])
+            queue = Queue(list[Range((index + 1)..<list.count)])
         } else {
             queue = Queue(list)
         }
     }
-    
+
     private func generateList() {
         list = viewList
     }
-    
+
 }
