@@ -1,7 +1,7 @@
 <ul class="list-group split-left-group">
   <% @artists.each do |e| %>
       <li class="list-group-item category-list-item" data-type="artist" data-id="<%= e[:id] %>">
-        <img src="<%= e[:portrait_url] %>">
+        <img src="/i/artist/<%= e[:id] %>/portrait">
         <span>
           <p class="artist-name" style="font-size: 16px;"><%= e[:name] %> <i class="fa fa-info-circle"></i></p>
         </span>

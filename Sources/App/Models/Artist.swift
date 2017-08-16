@@ -43,7 +43,7 @@ final class Artist: Model {
 //    }
 
     var portrait: ImageAsset? {
-        return (try? children().first()) ?? nil
+        return ((try? children().first()) ?? nil) ?? ((try? albums.first()?.artworkAsset) ?? nil)
     }
 }
 
