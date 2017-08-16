@@ -5,7 +5,7 @@ require 'set'
 require 'tilt'
 require 'fileutils'
 
-require '/home/alex/valence/server/Resources/Views/vapor_tilt_adapter.rb' #TODO: Replace with gem
+require Dir.home + '/valence/server/Resources/Views/vapor_tilt_adapter.rb' #TODO: Replace with gem
 
 VIEW_DIR          = ARGV[0]
 template_filename = ARGV[1]

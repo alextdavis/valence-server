@@ -13,7 +13,6 @@ class Routes: RouteCollection {
         }
 
         builder.post("search") { req in
-            try Search(try String(node: req.data["q"]))
             return "hi"
         }
 

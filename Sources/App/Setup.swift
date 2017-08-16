@@ -30,5 +30,6 @@ extension Config {
         preparations.append(Pivot<Song, Tag>.self)
         preparations.append(Pivot<Artist, Tag>.self)
         preparations.append(Pivot<Album, Tag>.self)
+        preparations.append(Search.self)
     }
 }

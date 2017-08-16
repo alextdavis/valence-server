@@ -217,6 +217,16 @@ class InfoRoutes: Routes {
                     return try req.parameters.next(Artist.self).makeJSON()
                 }
 
+                b.get("portrait") { req in
+                    let artist = try req.parameters.next(Artist.self) as Artist
+                    if let path = artist.portrait?.path,
+                       let data = FileManager.default.contents(atPath: path) {
+                        return Response(status: .ok, body: .data(data.makeBytes()))
+                    } else {
+                        throw Abort(.notFound)
+                    }
+                }
+
                 b.get("info") { req in
                     let artist = try req.parameters.next(Artist.self)
                     return try self.view.make("info_modal_artist.erb",

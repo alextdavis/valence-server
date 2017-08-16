@@ -10,12 +10,12 @@ import Regex
 final class Search: Model {
     let storage = Storage()
     let source: String
+    public var name: String?
     var results: [Int]?
 
-    init(_ source: String) throws {
+    init(_ source: String, name: String? = nil) throws {
         self.source = source
-        print(source)
-        print(try Search.parse(source))
+        self.name = name
     }
 
     func getJSON(orderBy: String? = "album_sort_artist, year, album_name, disc, track") throws -> String? {
@@ -84,11 +84,13 @@ final class Search: Model {
 
     init(row: Row) throws {
         source = try row.get("source")
+        name = try row.get("name")
     }
 
     func makeRow() throws -> Row {
         var row = Row()
         try row.set("source", source)
+        try row.set("name", name)
         return row
     }
 
@@ -110,13 +112,12 @@ final class Search: Model {
         }
         let rx = "[@#$%]\\d+|,|and|or|not|:(\\w+) (true|false|([<>=!]=? )?(\\d+)|([=~{] )?(\"[^\"]+\"))|\\(|\\)".r!
         for token in rx.findAll(in: str) {
-            print(token.matched)
             switch token.matched {
             case "@\\d+".r:
                 sqlStr += " artist_song.artist_id = \(removeFirstChar(of: token.matched)) "
             case "#\\d+".r:
                 sqlStr += " song_tag.tag_id = \(removeFirstChar(of: token.matched)) "
-            case "$\\d+".r:
+            case "\\$\\d+".r:
                 sqlStr += " songs.id = \(removeFirstChar(of: token.matched)) "
             case "%\\d+".r:
                 sqlStr += " songs.album_id = \(removeFirstChar(of: token.matched)) "
@@ -147,6 +148,26 @@ final class Search: Model {
         var mstr = String(str)!
         mstr.remove(at: mstr.startIndex)
         return mstr
+    }
+}
+
+extension Search: Preparation {
+    static func prepare(_ database: Database) throws {
+        try database.create(self) { searches in
+            searches.id()
+            searches.string("name")
+            searches.string("source")
+        }
+    }
+
+    static func revert(_ database: Database) throws {
+        try database.delete(self)
+    }
+}
+
+extension Search: JSONRepresentable {
+    func makeJSON() -> JSON {
+        return JSON.makeFromDict(["id": self.id, "name": self.name])
     }
 }
 

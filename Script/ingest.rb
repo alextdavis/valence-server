@@ -1,7 +1,7 @@
 #!/Users/alex/.rvm/rubies/ruby-2.4.0/bin/ruby
 
 MUSIC_BASE_URL = '//localhost'
-VALENCE_DIR    = Dir.home = '/Music/Valence'
+VALENCE_DIR    = Dir.home + '/Music/Valence'
 
 require 'json'
 require 'bcrypt'

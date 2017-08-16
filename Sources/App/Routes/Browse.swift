@@ -32,9 +32,16 @@ class BrowseRoutes: Routes {
                                           ])
             }
 
+            b.get("searches") { req in
+                return try self.view.make("split.erb",
+                                          ["layout": false,
+                                           "@searches": Search.all().map({ $0.makeJSON() })
+                                          ])
+            }
+
             b.get("all") { req in
                 return try self.makeTableView(
-                        search: "all",
+                        search: Search("all"),
                         request: req,
                         cols: ["rank", "track", "name", "time", "rating", "artists", "album", "year"],
                         layout: "just_container.erb")
@@ -42,28 +49,35 @@ class BrowseRoutes: Routes {
 
             b.get("artist", Artist.parameter) { req in
                 return try self.makeTableView(
-                        search: "@\(req.parameters.next(Artist.self).id!.int!)",
+                        search: Search("@\(req.parameters.next(Artist.self).id!.int!)"),
                         request: req,
                         cols: ["rank", "track", "name", "time", "rating", "tags", "artists", "album"])
             }
 
             b.get("album", Album.parameter) { req in
                 return try self.makeTableView(
-                        search: "%\(req.parameters.next(Album.self).id!.int!)",
+                        search: Search("%\(req.parameters.next(Album.self).id!.int!)"),
                         request: req,
                         cols: ["rank", "track", "name", "time", "rating", "tags", "artists", "year"])
             }
 
             b.get("tag", Tag.parameter) { req in
                 return try self.makeTableView(
-                        search: "#\(req.parameters.next(Tag.self).id!.int!)",
+                        search: Search("#\(req.parameters.next(Tag.self).id!.int!)"),
                         request: req,
                         cols: ["rank", "track", "name", "time", "rating", "tags", "artists", "year"])
             }
 
             b.get("star", Int.parameter) { req in
                 return try self.makeTableView(
-                        search: ":rating >= \(req.parameters.next(Int.self))",
+                        search: Search(":rating >= \(req.parameters.next(Int.self))"),
+                        request: req,
+                        cols: ["rank", "track", "name", "time", "rating", "artists", "album", "year"])
+            }
+
+            b.get("search", Search.parameter) { req in
+                return try self.makeTableView(
+                        search: req.parameters.next(Search.self),
                         request: req,
                         cols: ["rank", "track", "name", "time", "rating", "artists", "album", "year"])
             }
@@ -71,11 +85,10 @@ class BrowseRoutes: Routes {
         }//group
     }
 
-    private func makeTableView(search: String,
+    private func makeTableView(search: Search,
                                request req: Request,
                                cols: [String],
                                layout: String? = nil) throws -> ResponseRepresentable {
-        let search = try Search(search)
         let (orderBy, orderStrs) = self.doOrdering(query: req.query)
         Queuer.q.updateViewList(try search.getIDs(orderBy: orderBy))
         return try self.view.make("table.erb",
@@ -94,7 +107,7 @@ class BrowseRoutes: Routes {
             orderBy = "songs.\(by) \(order)"
             orderStrs = [by, order]
         } else {
-            orderBy = "disc, track"
+            orderBy = "album_id, disc, track"
         }
         return (orderBy, orderStrs)
     }
