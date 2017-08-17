@@ -8,6 +8,8 @@ import FluentProvider
 import Regex
 
 final class Search: Model {
+    private(set) static var name: String = "searches"
+
     let storage = Storage()
     let source: String
     public var name: String?
@@ -26,29 +28,38 @@ final class Search: Model {
         try issueQuery()
 
         let orderStr = isOrdered ? ("ORDER BY " + orderBy!) : ""
-        let sqlQuery = "SELECT array_to_json(array_agg(row_to_json(a)))FROM" +
-                "(SELECT id, name, rank, track, time, rating, year," +
+        let sqlQuery = "" +
+                "SELECT array_to_json(array_agg(row_to_json(a)))" +
+                "FROM (SELECT" +
+                "        id," +
+                "        name," +
+                "        rank," +
+                "        track," +
+                "        time," +
+                "        rating," +
+                "        year," +
                 "        (SELECT array_to_json(array_agg(row_to_json(b)))" +
-                "         FROM (SELECT a.id, a.name " +
+                "         FROM (SELECT" +
+                "                 a.id," +
+                "                 a.name" +
                 "               FROM artists AS a, songs AS s, artist_song AS ass" +
-                "               WHERE a.id = ass.artist_id AND s.id = ass.song_id AND s.id = songs.id" +
-                "              ) b)                         artists," +
+                "               WHERE a.id = ass.artist_id AND s.id = ass.song_id AND s.id = songs.id) b) artists," +
                 "        (SELECT array_to_json(array_agg(row_to_json(c)))" +
-                "         FROM (SELECT t.id, t.name " +
+                "         FROM (SELECT" +
+                "                 t.id," +
+                "                 t.name" +
                 "               FROM tags AS t, songs AS s, song_tag AS ts" +
-                "               WHERE t.id = ts.tag_id AND s.id = ts.song_id AND s.id = songs.id" +
-                "              ) c)                         tags," +
-                "        album_id," +
-                "        (SELECT albums.name" +
-                "         FROM albums" +
-                "         WHERE albums.id = songs.album_id) album_name," +
-                "        (SELECT albums.sort_artist" +
-                "         FROM albums" +
-                "         WHERE albums.id = songs.album_id) album_sort_artist" +
+                "               WHERE t.id = ts.tag_id AND s.id = ts.song_id AND s.id = songs.id) c)      tags," +
+                "        (SELECT row_to_json(d)" +
+                "         FROM (SELECT" +
+                "                 l.id," +
+                "                 l.name," +
+                "                 l.sort_artist" +
+                "               FROM albums AS l" +
+                "               WHERE l.id = songs.album_id) d)                                           album" +
                 "      FROM songs" +
-                "      WHERE songs.id IN (\(resultCSV())) " +
-                orderStr +
-                "     ) a"
+                "             WHERE songs.id = 3" +
+                "     ) a;"
         return try Song.database!.raw(sqlQuery)[0]?["array_to_json"]?.string
     }
 
@@ -60,11 +71,13 @@ final class Search: Model {
         if orderBy == nil {
             return results!
         } else {
-            return try Song.database!.raw("SELECT songs.id " +
-                    "FROM songs " +
-                    "INNER JOIN albums ON songs.album_id = albums.id " +
-                    "WHERE songs.id IN (\(resultCSV())) " +
-                    "ORDER BY \(orderBy!)").array?.map({ $0["id"]?.int }).flatMap({ $0 }) ?? results!
+            return try Song.database!.raw(
+                    "SELECT songs.id " +
+                            "FROM songs " +
+                            "INNER JOIN albums ON songs.album_id = albums.id " +
+                            "WHERE songs.id IN (\(resultCSV())) " +
+                            "ORDER BY \(orderBy!)"
+            ).array?.map({ $0["id"]?.int }).flatMap({ $0 }) ?? results!
         }
     }
 
@@ -77,7 +90,7 @@ final class Search: Model {
         if results == nil {
             results = try Song.database!.raw(try Search.parse(source)).array?.map({ $0["id"]?.int }).flatMap({ $0 })
         }
-        guard results != nil  else {
+        guard results != nil else {
             throw SearchError.queryResponseError
         }
     }
