@@ -14,7 +14,10 @@ final class Album: Model {
         return singlesAlbumArtist != nil
     }
 
-    static func findOrCreate(name: String, sortArtist: String, year: Int = 0, artworkAssetId: Identifier? = nil) throws -> Album? {
+    static func findOrCreate(name: String,
+                             sortArtist: String,
+                             year: Int = 0,
+                             artworkAssetId: Identifier? = nil) throws -> Album? {
         do {
             if let album = try Album.makeQuery().filter("name", name).first() {
                 return album

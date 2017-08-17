@@ -197,9 +197,7 @@ extension Song: JSONRepresentable {
         if sel == .all {
             return self.makeJSON()
         }
-        var dict: [String: Any?] =
-                ["id": id,
-                "name": name]
+        var dict: [String: Any?] = ["id": id, "name": name]
         if (sel.rawValue > 1) {
             dict["artists_names"] = try? self.artists.all().map({ $0.name })
 
@@ -209,29 +207,29 @@ extension Song: JSONRepresentable {
 
     func makeJSON() -> JSON {
         return JSON.makeFromDict([
-                "id": id,
-                "name": name,
-                "track": track,
-                "disc": disc,
-                "rating": rating,
-                "rank": rank,
-                "time": time,
-                "play_count": playCount,
-                "lyrics": lyrics,
-                "comment": comment,
-                "year": year,
-                "added": added,
-                "modified": modified,
-                "tags": try? tags.all().map({ $0.name }),
-                "last_played": lastPlayed,
-                "album_id": albumId,
-                "audio_asset_id": audioAssetId,
-                "image_asset_id": imageAssetId,
-                "album_name": self.album?.name,
-                "album_year": self.album?.year,
-                "artists": try? self.artists.all().map({ $0.name }).joined(separator: ", "),
-                "artists_names": try? self.artists.all().map({ $0.name }),
-                "artists_ids": try? self.artists.all().map({ $0.id }),
+            "id": id,
+            "name": name,
+            "track": track,
+            "disc": disc,
+            "rating": rating,
+            "rank": rank,
+            "time": time,
+            "play_count": playCount,
+            "lyrics": lyrics,
+            "comment": comment,
+            "year": year,
+            "added": added,
+            "modified": modified,
+            "tags": try? tags.all().map({ $0.name }),
+            "last_played": lastPlayed,
+            "album_id": albumId,
+            "audio_asset_id": audioAssetId,
+            "image_asset_id": imageAssetId,
+            "album_name": self.album?.name,
+            "album_year": self.album?.year,
+            "artists": try? self.artists.all().map({ $0.name }).joined(separator: ", "),
+            "artists_names": try? self.artists.all().map({ $0.name }),
+            "artists_ids": try? self.artists.all().map({ $0.id }),
         ])
     }
 

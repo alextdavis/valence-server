@@ -15,11 +15,11 @@ final class Artist: Model {
             return artist
         }
     }
-    
+
     init(name: String) {
         self.name = name
     }
-    
+
     init(row: Row) throws {
         name = try row.get("name")
     }

@@ -11,7 +11,7 @@ extension Song {
             var str = "<div class=\"rating\" data-value=\"\(self.rating)\"><div class=\"rating-static\">" +
                     "</div><div class=\"rating-active text-primary\">"
             for i in 0..<5 {
-                str.append("<span data-num=\"\(5-i)\">☆</span>")
+                str.append("<span data-num=\"\(5 - i)\">☆</span>")
             }
             str.append("</div></div>")
             return str

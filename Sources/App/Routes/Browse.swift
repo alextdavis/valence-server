@@ -6,37 +6,37 @@ class BrowseRoutes: Routes {
         builder.group("b") { b in
             b.get("albums") { req in
                 return try self.view.make("split.erb",
-                                          ["layout": false,
-                                           "@albums": Album.all().map({ $0.makeJSON() })
-                                          ])
+                        ["layout": false,
+                         "@albums": Album.all().map({ $0.makeJSON() })
+                        ])
             }
 
             b.get("artists") { req in
                 return try self.view.make("split.erb",
-                                          ["layout": false,
-                                           "@artists": Artist.all().map({ $0.makeJSON() })
-                                          ])
+                        ["layout": false,
+                         "@artists": Artist.all().map({ $0.makeJSON() })
+                        ])
             }
 
             b.get("tags") { req in
                 return try self.view.make("split.erb",
-                                          ["layout": false,
-                                           "@tags": Tag.all().map({ $0.makeJSON() })
-                                          ])
+                        ["layout": false,
+                         "@tags": Tag.all().map({ $0.makeJSON() })
+                        ])
             }
 
             b.get("stars") { req in
                 return try self.view.make("split.erb",
-                                          ["layout": false,
-                                           "@stars": [1, 2, 3, 4, 5]
-                                          ])
+                        ["layout": false,
+                         "@stars": [1, 2, 3, 4, 5]
+                        ])
             }
 
             b.get("searches") { req in
                 return try self.view.make("split.erb",
-                                          ["layout": false,
-                                           "@searches": Search.all().map({ $0.makeJSON() })
-                                          ])
+                        ["layout": false,
+                         "@searches": Search.all().map({ $0.makeJSON() })
+                        ])
             }
 
             b.get("all") { req in
@@ -92,12 +92,12 @@ class BrowseRoutes: Routes {
         let (orderBy, orderStrs) = self.doOrdering(query: req.query)
         Queuer.q.updateViewList(try search.getIDs(orderBy: orderBy))
         return try self.view.make("table.erb",
-                                  ["layout": layout ?? false,
-                                   "@all_tags": Tag.database!.raw("SELECT name FROM tags"),
-                                   "@cols": cols,
-                                   "@songs": try search.getJSON(orderBy: orderBy),
-                                   "@order": orderStrs as Any?,
-                                  ])
+                ["layout": layout ?? false,
+                 "@all_tags": Tag.database!.raw("SELECT name FROM tags"),
+                 "@cols": cols,
+                 "@songs": try search.getJSON(orderBy: orderBy),
+                 "@order": orderStrs as Any?,
+                ])
     }
 
     private func doOrdering(query: Node?) -> (String, [String]?) {

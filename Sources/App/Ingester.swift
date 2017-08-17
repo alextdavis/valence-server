@@ -21,7 +21,7 @@ import Darwin.C
 
 public class Ingester {
 
-    enum IngesterError: Error {
+    enum IngesterError: Swift.Error {
         case fileLoadError
         case badJson
         case audioAssetFail
