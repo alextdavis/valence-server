@@ -8,7 +8,7 @@ import FluentProvider
 import Regex
 
 final class Search: Model {
-    private(set) static var name: String = "searches"
+    private(set) static var name: String = "search"
 
     let storage = Storage()
     let source: String
@@ -58,8 +58,9 @@ final class Search: Model {
                 "               FROM albums AS l" +
                 "               WHERE l.id = songs.album_id) d)                                           album" +
                 "      FROM songs" +
-                "             WHERE songs.id = 3" +
-                "     ) a;"
+                "      WHERE songs.id IN (\(resultCSV())) " +
+                orderStr +
+                "     ) a"
         return try Song.database!.raw(sqlQuery)[0]?["array_to_json"]?.string
     }
 
