@@ -16,6 +16,10 @@ class InfoRoutes: Routes {
                 }
 
                 b.get("artwork") { req in
+                    return Response(redirect: req.uri.description.replacingOccurrences(of: "artwork", with: "image"))
+                }
+
+                b.get("image") { req in
                     let song = try req.parameters.next(Song.self)
                     if let path = song.artworkAsset.path as String?,
                        let data = FileManager.default.contents(atPath: path) {
@@ -161,6 +165,10 @@ class InfoRoutes: Routes {
                 }
 
                 b.get("artwork") { req in
+                    return Response(redirect: req.uri.description.replacingOccurrences(of: "artwork", with: "image"))
+                }
+
+                b.get("image") { req in
                     let album = try req.parameters.next(Album.self)
                     if let path = album.artworkAsset.path as String?,
                        let data = FileManager.default.contents(atPath: path) {
@@ -218,6 +226,10 @@ class InfoRoutes: Routes {
                 }
 
                 b.get("portrait") { req in
+                    return Response(redirect: req.uri.description.replacingOccurrences(of: "portrait", with: "image"))
+                }
+
+                b.get("image") { req in
                     let artist = try req.parameters.next(Artist.self) as Artist
                     if let path = artist.portrait?.path,
                        let data = FileManager.default.contents(atPath: path) {

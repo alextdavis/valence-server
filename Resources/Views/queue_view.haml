@@ -1,0 +1,11 @@
+%ul
+  - @songs.each do |song|
+    %li
+      .media
+        .media-left
+          %a{href: "#"}
+            %img.media-object{src: "/i/song/#{song[:id]}/image"}
+        .media-body
+          %h4.media-heading
+            = song[:title]
+          = song[:artists_names].join(", ")

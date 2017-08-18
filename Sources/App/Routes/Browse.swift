@@ -5,46 +5,38 @@ class BrowseRoutes: Routes {
     override func build(_ builder: RouteBuilder) throws {
         builder.group("b") { b in
             b.get("albums") { req in
-                return try self.view.make("split.erb",
-                        ["layout": false,
-                         "@albums": Album.all().map({ $0.makeJSON() })
+                return try self.view.make("browse.haml",
+                        ["@type": "album",
+                         "@items": Album.all().map({ $0.makeJSON() }),
                         ])
             }
 
             b.get("artists") { req in
-                return try self.view.make("split.erb",
-                        ["layout": false,
-                         "@artists": Artist.all().map({ $0.makeJSON() })
+                return try self.view.make("browse.haml",
+                        ["@type": "artist",
+                         "@items": Artist.all().map({ $0.makeJSON() })
                         ])
             }
 
             b.get("tags") { req in
-                return try self.view.make("split.erb",
-                        ["layout": false,
-                         "@tags": Tag.all().map({ $0.makeJSON() })
+                return try self.view.make("browse.haml",
+                        ["@type": "tag",
+                         "@items": Tag.all().map({ $0.makeJSON() })
                         ])
             }
 
             b.get("stars") { req in
-                return try self.view.make("split.erb",
-                        ["layout": false,
-                         "@stars": [1, 2, 3, 4, 5]
+                return try self.view.make("browse.haml",
+                        ["@type": "star",
+                         "@items": [1, 2, 3, 4, 5]
                         ])
             }
 
             b.get("searches") { req in
-                return try self.view.make("split.erb",
-                        ["layout": false,
-                         "@searches": Search.all().map({ $0.makeJSON() })
+                return try self.view.make("browse.haml",
+                        ["@type": "search",
+                         "@items": Search.all().map({ $0.makeJSON() })
                         ])
-            }
-
-            b.get("all") { req in
-                return try self.makeTableView(
-                        search: Search("all"),
-                        request: req,
-                        cols: ["rank", "track", "name", "time", "rating", "artists", "album", "year"],
-                        layout: "just_container.erb")
             }
 
             b.get("artist", Artist.parameter) { req in

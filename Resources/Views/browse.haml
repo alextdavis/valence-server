@@ -1,0 +1,27 @@
+.browse-head
+  .btn-group#view-toggle
+    - %w(album artist tag search).each do |type|
+      %a.btn.btn-default{href: "/b/#{type.en.plural}", class: @type == type ? ['selected'] : []}
+        =type.capitalize.en.plural
+  = partial :searchbox
+
+.browse-container{data: {type: @type}}
+  - puts @id.inspect
+  .row#split-row
+    .col-sm-4#split-left-col
+      %ul.list-group.split-left-group
+        - @items.each do |e|
+          %li.list-group-item.category-list-item{data: {type: @type, id: e[:id]}}
+            - if %w(album artist).include?(@type)
+              %img{src: "/i/#{@type}/#{e[:id]}/image"}
+            %span
+              %p.split-left-name
+                = e[:name]
+                %i.fa.fa-info-circle
+              - if @type == 'album'
+                %p.split-left-other
+                  = to_html e, :year
+                  = to_html e, :artists
+      -#= partial 'queue_view.haml'
+    .col-sm-8.table-container#split-right-col{data: {url: "/b/#{@type}/"}}
+      Select an Item

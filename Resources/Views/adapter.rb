@@ -4,6 +4,9 @@ require 'erb'
 require 'set'
 require 'tilt'
 require 'fileutils'
+require 'linguistics'
+
+Linguistics.use(:en)
 
 require Dir.home + '/valence/server/Resources/Views/vapor_tilt_adapter.rb' #TODO: Replace with gem
 

@@ -1,4 +1,4 @@
-var player;
+var queuer;
 
 function updateTableEventListeners() {
     //Changes Ordering
@@ -7,21 +7,20 @@ function updateTableEventListeners() {
         var col_name = ele.data('col');
         var omap = {'': 'asc', 'asc': 'desc', 'desc': ''};
         var ordering = omap[ele.data('order')];
-        var query_string = ordering != '' ? ("?by=" + col_name + "&order=" + ordering) : '';
-        var url = $(".table-container").data('url') + query_string;
-        replace_table_content(url);
+        var query_string = ordering !== '' ? ("?by=" + col_name + "&order=" + ordering) : '';
+        replace_table_content(null, query_string);
     });
 
     //Plays a song that's clicked on.
     $(".songs-table tbody tr").on('dblclick', function (e) {
         e.preventDefault();
         var id = $(e.currentTarget).data('id');
-        player.enqueueNow(id);
+        queuer.directPlay(id);
     });
     $(".songs-table tbody tr td.row-name").on('click', function (e) {
         e.preventDefault();
-        var id = $(e.currentTarget).parent().data('id');
-        player.enqueueNow(id);
+        // var id = $(e.currentTarget).parent().data('id');
+        // player.enqueueNow(id);
     });
 
     //Open song info modal.
@@ -125,11 +124,7 @@ function updateTableEventListeners() {
 function updateCategoryEventListeners() {
     $("li.category-list-item").on('click', function (e) {
         var list_item = $(e.currentTarget);
-        replace_table_content("/b/" + list_item.data('type') + "/" + list_item.attr('data-id'), function () {
-            $("li.category-list-item.active").removeClass('active');
-            list_item.addClass('active');
-            $("#split-right-col").data('url', "/b/" + list_item.data('type') + "/" + list_item.data('id'));
-        });
+        replace_table_content(list_item.attr('data-id'), "");
     });
 
     //Open category info modal.
@@ -148,52 +143,21 @@ function updateCategoryEventListeners() {
     });
 }
 
-function updatePlayheadEventListeners() {
-    $("#playhead #view-toggle button").on('click', function (e) {
-        var ele = $(e.currentTarget);
-        ele.siblings().each(function (i, e) {
-            $(e).removeClass('active');
-        });
-        replace_browse_content(ele.data('url'));
-        ele.addClass('active');
-    });
-
-    $("#playhead .prev").on('click', function () {
-        player.prevSong();
-    });
-
-    $("#playhead .next").on('click', function () {
-        player.nextSong();
-    });
-
-    $("#playhead .play").on('click', function () {
-        player.togglePP();
-    });
-
-    $("#playhead .shuffle").on('click', function () {
-        player.shuffle_toggle();
-    });
-
-    $("#main-player").on('ended', function () {
-        console.log("Song has ended naturally");
-        player.nextSong();
-    })
-}
-
-
-function replace_browse_content(url) {
-    replace_content(url, $(".browse-container"), function () {
-        updateCategoryEventListeners();
+function replace_table_content(id, queryString, callback) {
+    if (id == null)
+        id = location.search.replace("?id=", "");
+    // console.log("loading " + id);
+    // console.log($(".table-container").data('url'));
+    replace_content($(".table-container").data('url') + id + queryString, $(".table-container"), function () {
         updateTableEventListeners();
-    });
-}
-
-function replace_table_content(url, callback) {
-    replace_content(url, $(".table-container"), function () {
-        updateTableEventListeners();
-        if (callback) {
+        if (callback)
             callback();
-        }
+
+        $("li.category-list-item.active").removeClass('active');
+        $("li.category-list-item[data-id=" + id + "]").addClass('active');
+        console.log("Hi");
+        var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + id;
+        window.history.pushState({path: newurl}, null, newurl);
     });
 }
 
@@ -203,7 +167,6 @@ function replace_content(url, ele, callback) {
         url: url,
         success: function (data) {
             ele.html(data);
-            ele.find(".table-container").data('url', url);
             if (callback)
                 callback();
         },
@@ -213,15 +176,17 @@ function replace_content(url, ele, callback) {
     })
 }
 
+window.onpopstate = function () {
+    replace_table_content(null, "");
+};
+
+
 $(function () {
-    player = new Player();
+    queuer = new Queuer();
 
-    player.dispatch("greetings");
-
-    updatePlayheadEventListeners();
-
-    if ($(".table-container").data('url')) {
-        replace_browse_content($(".table-container").data('url'));
+    if (location.search !== "") {
+        var id = location.search.replace("?id=", "");
+        replace_table_content(id, "");
     }
 
     updateTableEventListeners();
@@ -229,6 +194,6 @@ $(function () {
 
     $("#debug-button").on('click', function () {
         $.ajax('/debug');
-        player.dispatch('greetings');
+        queuer.dispatch('greetings');
     });
 });
