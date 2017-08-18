@@ -1,4 +1,4 @@
-#!/home/alex/.rvm/rubies/ruby-2.4.1/bin/ruby
+#!/Users/alex/.rvm/rubies/ruby-2.4.1/bin/ruby
 require 'json'
 require 'erb'
 require 'set'
