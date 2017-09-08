@@ -16,6 +16,8 @@ class Queuer {
     private(set) var repeating = false
     private var isManual = false
 
+    public var subscribers: [WebSocket] = Array()
+
     var status: JSON {
         get {
             do {
@@ -45,6 +47,7 @@ class Queuer {
             generateQueue()
         }
         current = queue.dequeue()
+        notify()
     }
 
     func previous() {
@@ -58,12 +61,14 @@ class Queuer {
             history = []
             current = nil
         }
+        notify()
     }
 
     func directPlay(_ id: Int) {
         generateList()
         current = id
         generateQueue(id)
+        notify()
     }
 
     func directPlay(list: [Int]) {
@@ -74,6 +79,7 @@ class Queuer {
             current = list[0]
         }
         generateQueue(current)
+        notify()
     }
 
     func enqueueNext(_ id: Int) {
@@ -85,6 +91,7 @@ class Queuer {
             queue = Queue()
         }
         queue.prepend(ids)
+        notify()
     }
 
     func enqueueAppend(_ id: Int) {
@@ -96,6 +103,7 @@ class Queuer {
             queue = Queue()
         }
         queue.enqueue(ids)
+        notify()
     }
 
     func shuffle() {
@@ -103,6 +111,7 @@ class Queuer {
         if shuffling && !isManual && current != nil {
             generateQueue(current!)
         }
+        notify()
     }
 
     private func generateQueue(_ id: Int? = nil) {
@@ -122,6 +131,16 @@ class Queuer {
 
     private func generateList() {
         list = viewList
+    }
+
+    private func notify() {
+        for ws in subscribers {
+            do {
+                try ws.send("notify")
+            } catch {
+                print("[WebSockets Error] \(error)")
+            }
+        }
     }
 
 }
