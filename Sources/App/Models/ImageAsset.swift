@@ -5,7 +5,7 @@ import Foundation
 
 // FileManager
 
-import CryptoSwift
+import Crypto
 
 final class ImageAsset: Model {
     static let none = try! ImageAsset.find(1)!
