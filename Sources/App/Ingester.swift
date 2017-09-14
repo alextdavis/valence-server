@@ -9,7 +9,6 @@
 import Foundation
 import Vapor
 import Regex
-import CryptoSwift
 import Progress
 
 #if os(Linux)

@@ -1,8 +1,8 @@
 import Vapor
 import FluentProvider
 import HTTP
-import Foundation //FileManager
-import CryptoSwift
+import Foundation
+import Crypto
 
 final class AudioAsset: Model {
     static var calculateChecksums: Bool = false
@@ -14,7 +14,7 @@ final class AudioAsset: Model {
 
     static func findOrCreate(url: String, contentType: String) throws -> AudioAsset {
         if calculateChecksums {
-            if let checksum = FileManager.default.contents(atPath: url)?.md5().base64EncodedString() {
+            if let checksum = fileChecksum(path: url) {
                 if let ma = ((try? AudioAsset.makeQuery().filter("checksum", checksum).first()) ?? nil) {
                     return ma
                 }
@@ -32,8 +32,8 @@ final class AudioAsset: Model {
         self.url = url
         self.contentType = contentType
         if AudioAsset.calculateChecksums {
-            if let checksum = FileManager.default.contents(atPath: url)?.md5() {
-                self.checksum = checksum.base64EncodedString()
+            if let checksum = fileChecksum(path: url) {
+                self.checksum = checksum
             } else {
                 print("FATAL: MediaAsset file not found")
                 throw SomeError()

@@ -128,7 +128,7 @@ extension Sequence where Iterator.Element: OptionalType {
     }
 }
 
-class SomeError: Error { //TODO: Proper error instead of SomeError
+class SomeError: Swift.Error { //TODO: Proper error instead of SomeError
     init() {
     }
 }

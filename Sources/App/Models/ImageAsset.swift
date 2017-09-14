@@ -17,7 +17,7 @@ final class ImageAsset: Model {
     var contentType: String
 
     static func findOrCreate(url: String, contentType: String) throws -> ImageAsset {
-        if let checksum = FileManager.default.contents(atPath: url)?.md5().base64EncodedString() {
+        if let checksum = fileChecksum(path: url) {
             if let ma = ((try? ImageAsset.makeQuery().filter("checksum", checksum).first()) ?? nil) {
                 return ma
             } else {
@@ -34,8 +34,8 @@ final class ImageAsset: Model {
     init(path: String, contentType: String) throws {
         self.path = path
         self.contentType = contentType
-        if let checksum = FileManager.default.contents(atPath: path)?.md5() {
-            self.checksum = checksum.base64EncodedString()
+        if let checksum = fileChecksum(path: path) {
+            self.checksum = checksum
         } else {
             print("FATAL: ImageAsset file not found")
             throw SomeError()
