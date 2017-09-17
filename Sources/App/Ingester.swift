@@ -117,5 +117,31 @@ public class Ingester {
 //            fflush(stdout)
             fileIndex += 1
         }
+        seed()
+    }
+
+    public static func seed() {
+        seedPlaylist(songs: ["Cherenkov", "Jerall", "Journey's End", "A Winter's Tale", "Sky Above", "Aurora", "Wind Guide You",
+                             "A Safe Place", "Dream Salvage", "Recreation", "Metaphysics", "0x10c", "The Process of Getting to Know You",
+                             "Time Spent Wondering", "Inner Light", "Postcards from", "house_loneliness", "Seeds of the Crown", "The Winding Ridge",
+                             "Acropolis Falls", "Panacea", "Easy Living", "Flim", "Variations On the Kanon"], name: "Bedtime")
+        try? Search(":rating >= 3", name: "3+ Stars").save()
+        try? Search(":rating >= 4", name: "4+ Stars").save()
+        try? Search(":rating = 5", name: "5 Stars").save()
+
+        if let pogoId = (try? Artist.makeQuery().filter("name", "Pogo").first()?.id?.int) ?? nil {
+            print("@\(pogoId) and :rating >= 3")
+            try? Search("@\(pogoId) and :rating >= 3", name: "Select Pogo").save()
+        }
+    }
+
+    private static func seedPlaylist(songs: [String], name: String) {
+        var query = ""
+        for song in songs {
+            try? query.append("$\(Song.makeQuery().filter("name", .contains, song).first()?.id?.int ?? 0), ")
+        }
+        print("Bedtime query: `\(query.substring(to: query.index(query.endIndex, offsetBy: -2)))`")
+        let bedtime = try! Search(query.substring(to: query.index(query.endIndex, offsetBy: -2)), name: name)
+        try! bedtime.save()
     }
 }
