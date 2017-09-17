@@ -1,7 +1,7 @@
-#!/Users/alex/.rvm/rubies/ruby-2.4.1/bin/ruby
+#!/usr/bin/env ruby
 
 project_name =
-    Dir.glob(".idea/*.iml")&.dig(0)&.match(/\.idea\/(.*)\.iml/)&.dig(1) ||
+    Dir.glob(".idea/*.iml")&.dig(0)&.match(/\.idea\/(.*)\.iml/)[1] ||
     Dir.pwd.match(/.*\/([^\/]+)/)[1]
 project_name.gsub!('-', '_')
 

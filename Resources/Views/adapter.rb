@@ -1,4 +1,4 @@
-#!/Users/alex/.rvm/rubies/ruby-2.4.1/bin/ruby
+#!/usr/bin/env ruby
 require 'json'
 require 'erb'
 require 'set'
@@ -8,7 +8,7 @@ require 'linguistics'
 
 Linguistics.use(:en)
 
-require Dir.home + '/valence/server/Resources/Views/vapor_tilt_adapter.rb' #TODO: Replace with gem
+require 'vapor_tilt_adapter'
 
 VIEW_DIR          = ARGV[0]
 template_filename = ARGV[1]
@@ -83,4 +83,4 @@ class MyRenderer < VaporTiltAdapter::Renderer
   end
 end
 
-MyRenderer.new.render(VIEW_DIR, template_filename, output_path, context)
+MyRenderer.new.render(VIEW_DIR, template_filename, output_path, context, "layout.erb")
