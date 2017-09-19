@@ -7,14 +7,14 @@ class BrowseRoutes: Routes {
             b.get("albums") { req in
                 return try self.view.make("browse.haml",
                         ["@type": "album",
-                         "@items": Album.all().map({ $0.makeJSON() }),
+                         "@items": Album.makeQuery().sort("name", .ascending).all().map({ $0.makeJSON() }),
                         ])
             }
 
             b.get("artists") { req in
                 return try self.view.make("browse.haml",
                         ["@type": "artist",
-                         "@items": Artist.all().map({ $0.makeJSON() })
+                         "@items": Artist.makeQuery().filter(raw: "").sort("name", .ascending).all().map({ $0.makeJSON() })
                         ])
             }
 
@@ -58,13 +58,6 @@ class BrowseRoutes: Routes {
                         search: Search("#\(req.parameters.next(Tag.self).id!.int!)"),
                         request: req,
                         cols: ["rank", "track", "name", "time", "rating", "tags", "artists", "year"])
-            }
-
-            b.get("star", Int.parameter) { req in
-                return try self.makeTableView(
-                        search: Search(":rating >= \(req.parameters.next(Int.self))"),
-                        request: req,
-                        cols: ["rank", "track", "name", "time", "rating", "artists", "album", "year"])
             }
 
             b.get("search", Search.parameter) { req in

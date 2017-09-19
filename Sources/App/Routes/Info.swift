@@ -66,6 +66,7 @@ class InfoRoutes: Routes {
                     let data = req.data
                     guard (data["name"]?.string != nil && data["artists"]?.array != nil &&
                             data["album"]?.int != nil && data["track"]?.int != nil) else {
+                        print("Song info bad request. req.body: `\(req.body)`")
                         throw Abort.badRequest
                     }
 
@@ -190,7 +191,8 @@ class InfoRoutes: Routes {
                 b.post("info") { req in
                     let album = try req.parameters.next(Album.self)
                     let data = req.data
-                    guard (data["name"]?.string != nil && data["artists"]?.string != nil) else {
+                    guard (data["name"]?.string != nil && data["artists"]?.array != nil) else {
+                        print("Album info bad request. req.body: `\(req.body)`")
                         throw Abort.badRequest
                     }
 
@@ -251,6 +253,7 @@ class InfoRoutes: Routes {
                     let artist = try req.parameters.next(Artist.self)
                     let data = req.data
                     guard (data["name"]?.string != nil) else {
+                        print("Artist info bad request. req.body: `\(req.body)`")
                         throw Abort.badRequest
                     }
 
@@ -278,6 +281,7 @@ class InfoRoutes: Routes {
                     let tag = try req.parameters.next(Tag.self)
                     let data = req.data
                     guard (data["name"]?.string != nil) else {
+                        print("Tag info bad request. req.body: `\(req.body)`")
                         throw Abort.badRequest
                     }
 

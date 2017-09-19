@@ -87,13 +87,16 @@ final class Search: Model {
         return try Song.makeQuery().filter(raw: "IN (\(resultCSV()))").all()
     }
 
-    func issueQuery() throws {
+    func issueQuery() throws -> String {
+        var sqlQuery = ""
         if results == nil {
-            results = try Song.database!.raw(try Search.parse(source)).array?.map({ $0["id"]?.int }).flatMap({ $0 })
+            sqlQuery = try Search.parse(source)
+            results = try Song.database!.raw(sqlQuery).array?.map({ $0["id"]?.int }).flatMap({ $0 })
         }
         guard results != nil else {
             throw SearchError.queryResponseError
         }
+        return sqlQuery
     }
 
     init(row: Row) throws {
@@ -119,7 +122,7 @@ final class Search: Model {
         var sqlStr = "SELECT songs.id " +
                 "FROM songs " +
                 "LEFT JOIN song_tag on songs.id = song_tag.song_id " +
-                "LEFT JOIN artist_song ON songs.id = artist_song.id " +
+                "LEFT JOIN artist_song ON songs.id = artist_song.song_id " +
                 "WHERE "
         if str == "all" {
             return sqlStr + "1=1"

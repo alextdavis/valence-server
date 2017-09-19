@@ -42,12 +42,12 @@ class MyRenderer < VaporTiltAdapter::Renderer
       when Hash
         case key
           when :artist, :artists
-            %(<a href="/i/artist/#{item[:id]}">
+            %(<a href="/b/artists?id=#{item[:id]}">
               <span class="label-artist label">#{item[:name].gsub(' ', '&nbsp;')}</span></a>)
           when :album
-            %(<a href="/i/album/#{item[:id]}" class="label-album">#{item[:name]}</a>)
+            %(<a href="/b/albums?id=#{item[:id]}" class="label-album">#{item[:name]}</a>)
           when :tag
-            %(<a href="/i/tag/#{item[:id]}" class="label-tag">#{item[:name]}</a>)
+            %(<a href="/b/tags?id=#{item[:id]}" class="label-tag">#{item[:name]}</a>)
           else
             item.inspect
         end
