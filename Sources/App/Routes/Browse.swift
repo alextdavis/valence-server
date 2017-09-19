@@ -14,7 +14,7 @@ class BrowseRoutes: Routes {
             b.get("artists") { req in
                 return try self.view.make("browse.haml",
                         ["@type": "artist",
-                         "@items": Artist.makeQuery().filter(raw: "").sort("name", .ascending).all().map({ $0.makeJSON() })
+                         "@items": Artist.makeQuery().sort("name", .ascending).all().map({ $0.makeJSON() })
                         ])
             }
 
