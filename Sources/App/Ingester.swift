@@ -129,6 +129,7 @@ public class Ingester {
         try? Search(":rating >= 4", name: "4+ Stars").save()
         try? Search(":rating = 5", name: "5 Stars").save()
         try? Search("all", name: "all").save()
+        try? Search(":rating = 0", name: "To Be Rated").save()
 
         if let pogoId = (try? Artist.makeQuery().filter("name", "Pogo").first()?.id?.int) ?? nil {
             print("@\(pogoId) and :rating >= 3")
