@@ -15,7 +15,7 @@ extension MutableCollection where Indices.Iterator.Element == Index {
                 continue
             }
             let i = index(firstUnshuffled, offsetBy: d)
-            self.swapAt(firstUnshuffled, i)
+            swap(&self[firstUnshuffled], &self[i])
         }
     }
 }
