@@ -1,6 +1,6 @@
-#!/Users/alex/.rvm/rubies/ruby-2.4.0/bin/ruby
+#!/usr/bin/env ruby
 
-MUSIC_BASE_URL = '//localhost'
+MUSIC_BASE_URL = '//valence.alextdavis.me'
 VALENCE_DIR    = Dir.home + '/Music/Valence'
 
 require 'json'
@@ -44,7 +44,7 @@ class Ingester
       elsif filename.match(/\.(m4a|mp3)$/)
         data = file.read
         checksum = Digest::MD5.base64digest(data)
-        url = URI.escape(file.path.sub(/^.*\/Music\/iTunes Music/, "#{MUSIC_BASE_URL}/music"))
+        url = URI.escape(file.path.sub(/^.*\/Music\/iTunes\/iTunes Music/, "#{MUSIC_BASE_URL}/music"))
         if url.length > 512
           puts "\nFound url that's too long: \n#{url}\n"
           next
@@ -163,7 +163,7 @@ i.add_info(File.open("./Script/addtl_info.txt").read)
 #   break if line == nil
 #   i.add_info(line)
 # end
-i.recursive_ingest(File.expand_path(Dir.home + '/Music/iTunes Music'))
+i.recursive_ingest(File.expand_path(Dir.home + '/Music/iTunes/iTunes Music'))
 puts ''
 puts i.ignored_filetypes
 puts i.dupe_urls
