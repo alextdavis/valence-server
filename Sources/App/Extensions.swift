@@ -1,7 +1,7 @@
 import Random
 
 //These next two thanks to Nate Cook from http://stackoverflow.com/a/24029847/5870145
-extension MutableCollection where Indices.Iterator.Element == Index {
+extension MutableCollection {
     /// Shuffles the contents of this collection.
     mutating func shuffle() {
         let c = count
@@ -15,7 +15,7 @@ extension MutableCollection where Indices.Iterator.Element == Index {
                 continue
             }
             let i = index(firstUnshuffled, offsetBy: d)
-            swap(&self[firstUnshuffled], &self[i])
+            self.swapAt(firstUnshuffled, i)
         }
     }
 }

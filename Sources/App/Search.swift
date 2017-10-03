@@ -113,9 +113,8 @@ final class Search: Model {
 
 
     private func resultCSV() -> String {
-        let resultStr = String(describing: results!)
-        return resultStr[
-                resultStr.index(resultStr.startIndex, offsetBy: 1)..<resultStr.index(resultStr.endIndex, offsetBy: -1)]
+        let str = String(describing: results!)
+        return String(str[str.index(after: str.startIndex)..<str.index(before: str.endIndex)])
     }
 
     private static func parse(_ str: String) throws -> String {
@@ -162,7 +161,7 @@ final class Search: Model {
     }
 
     private static func removeFirstChar(of str: String) -> String {
-        var mstr = String(str)!
+        var mstr = String(str)
         mstr.remove(at: mstr.startIndex)
         return mstr
     }
