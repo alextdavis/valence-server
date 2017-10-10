@@ -66,7 +66,7 @@ class Queuer {
         generateQueue(id)
     }
 
-    func directPlay(list: [Int]) {
+    func directPlay(_ list: [Int]) {
         self.list = list
         if shuffling {
             current = list.shuffled()[0] //TODO inefficient

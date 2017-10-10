@@ -9,7 +9,7 @@ class InfoRoutes: Routes {
                 b.get("url") { req in
                     let song: Song = try req.parameters.next(Song.self)
                     if let url = song.audioAsset?.url {
-                        return Response(redirect: url.replacingOccurrences(of: "localhost", with: "alexs-pro-2.local"))
+                        return Response(redirect: url.replacingOccurrences(of: "10.0.1.10", with: "valence.alextdavis.me"))
                     } else {
                         throw Abort(.notFound)
                     }

@@ -11,11 +11,29 @@ class QueueingRoutes: Routes {
             case "prev":
                 Queuer.q.previous()
             case "direct_play", "enqueue_now":
-                Queuer.q.directPlay((req.data["id"]?.int)!)
+                if let id = req.data["id"]?.int {
+                    Queuer.q.directPlay(id)
+                } else if let str = req.data["search"]?.string {
+                    Queuer.q.directPlay(try Search(str).getIDs())
+                } else {
+                    throw Abort(.badRequest, reason: "bad id or search data")
+                }
             case "enqueue_next":
-                Queuer.q.enqueueNext((req.data["id"]?.int)!)
+                if let id = req.data["id"]?.int {
+                    Queuer.q.enqueueNext(id)
+                } else if let str = req.data["search"]?.string {
+                    Queuer.q.enqueueNext(try Search(str).getIDs())
+                } else {
+                    throw Abort(.badRequest, reason: "bad id or search data")
+                }
             case "enqueue_append":
-                Queuer.q.enqueueAppend((req.data["id"]?.int)!)
+                if let id = req.data["id"]?.int {
+                    Queuer.q.enqueueAppend(id)
+                } else if let str = req.data["search"]?.string {
+                    Queuer.q.enqueueAppend(try Search(str).getIDs())
+                } else {
+                    throw Abort(.badRequest, reason: "bad id or search data")
+                }
             case "shuffle":
                 Queuer.q.shuffle()
             case "repeat":
@@ -23,7 +41,7 @@ class QueueingRoutes: Routes {
             case "update":
                 ()
             case "greetings":
-                print("New client at... somewhwere")
+                print("New client at... somewhere")
             default:
                 throw Abort(.badRequest, reason: "improper dispatch: `\(message)`")
             }
