@@ -142,8 +142,8 @@ public class Ingester {
         for song in songs {
             try? query.append("$\(Song.makeQuery().filter("name", .contains, song).first()?.id?.int ?? 0), ")
         }
-        print("Bedtime query: `\(query.substring(to: query.index(query.endIndex, offsetBy: -2)))`")
-        let bedtime = try! Search(query.substring(to: query.index(query.endIndex, offsetBy: -2)), name: name)
+        print("Bedtime query: `\(query[..<query.index(query.endIndex, offsetBy: -2)])`")
+        let bedtime = try! Search(String(query[..<query.index(query.endIndex, offsetBy: -2)]), name: name)
         try! bedtime.save()
     }
 }
