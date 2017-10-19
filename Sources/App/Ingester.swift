@@ -30,18 +30,16 @@ public class Ingester {
         case singlesFail
     }
 
-    public static func rubyIngest(runScript: Bool = true) throws {
-        if (runScript) {
-            let task = Process()
-            task.launchPath = "./Script/ingest.rb"
-            task.launch()
-            task.waitUntilExit()
-        }
+    public static func rubyIngest() throws {
         let data = FileManager.default.contents(atPath: "./Script/rb_ingest_data.json")
         guard data != nil else {
             throw IngesterError.fileLoadError
         }
-        let jsonAry = try JSON.init(bytes: data!.makeBytes()).array
+        try jsonIngest(json: try JSON.init(bytes: data!.makeBytes()))
+    }
+
+    private static func jsonIngest(json: JSON) throws {
+        let jsonAry = json.array
         guard jsonAry != nil else {
             throw IngesterError.badJson
         }
