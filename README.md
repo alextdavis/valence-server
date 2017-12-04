@@ -1,6 +1,6 @@
-# vTunes
+# Valence Server
 
-A Work-In-Progress web-based music library written in Swift
+A Work-In-Progress web-based music library manager written in Swift
 
 ## Query Language for Music Searches
 
