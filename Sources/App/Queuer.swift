@@ -2,9 +2,9 @@ class Queuer {
     public static let q = Queuer()
 
     private(set) var queue = Queue<Int>()
-    private(set) var history = Array<Int>()
-    private(set) var list = Array<Int>()
-    private var viewList = Array<Int>()
+    private(set) var history = [Int]()
+    private(set) var list = [Int]()
+    private var viewList = [Int]()
     private var current: Int? {
         didSet {
             if (history.last != current && current != nil) {

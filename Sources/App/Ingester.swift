@@ -31,26 +31,23 @@ public class Ingester {
     }
 
     public static func rubyIngest() throws {
-        let data = FileManager.default.contents(atPath: "./Script/rb_ingest_data.json")
-        guard data != nil else {
+        guard let data = FileManager.default.contents(atPath: "./Script/rb_ingest_data.json") else {
             throw IngesterError.fileLoadError
         }
-        try jsonIngest(json: try JSON.init(bytes: data!.makeBytes()))
+        try jsonIngest(json: try JSON.init(bytes: data.makeBytes()))
     }
 
     private static func jsonIngest(json: JSON) throws {
-        let jsonAry = json.array
-        guard jsonAry != nil else {
+        guard let jsonAry = json.array else {
             throw IngesterError.badJson
         }
         var fileIndex = 0
-        for file in Progress(jsonAry!) {
-            let audioAsset = AudioAsset(json: file["audio_asset"])
-            guard audioAsset != nil else {
+        for file in Progress(jsonAry) {
+            guard let audioAsset = AudioAsset(json: file["audio_asset"]) else {
                 print("Failing JSON: \(file)")
                 throw IngesterError.audioAssetFail
             }
-            try audioAsset!.save()
+            try audioAsset.save()
 
             let artworkAsset: ImageAsset?
             let jsonArtworkAsset = file["artwork_asset"]?.object
@@ -64,7 +61,7 @@ public class Ingester {
 //                throw IngesterError.artworkAssetFail
             }
 
-            var album: Album?
+            var album: Album
             if file["album"]?.string != nil && file["album"]?.string! != "" {
                 let sortArtist: String
                 if (file["artists"]?.array?.count ?? 0) > 0 {
@@ -72,19 +69,20 @@ public class Ingester {
                 } else {
                     sortArtist = ""
                 }
-                album = try Album.findOrCreate(name: file["album"]!.string!,
+
+                guard let album_inner = try Album.findOrCreate(name: file["album"]!.string!,
                         sortArtist: sortArtist, year: file["song"]?["year"]?.int ?? 0,
-                        artworkAssetId: artworkAsset?.id)
-                guard album != nil else {
+                        artworkAssetId: artworkAsset?.id) else {
                     throw IngesterError.albumFail
                 }
+                album = album_inner
             } else {
 //                print("Making Singles album for song: \(String(describing: file["song"])), with album \(String(describing: file["album"]))")
                 if let ary = file["artists"]?.array,
                    ary.count > 0,
                    let artistName = file["artists"]?.array?[0].string,
                    let artist = try? Artist.findOrCreate(name: artistName) {
-                    album = try Album.findOrCreate(singlesFor: artist)
+                    album = try Album.findOrCreate(singlesFor: artist)!
                 } else {
                     print("Single Fail Inbound for song[\(fileIndex)]: \(String(describing: file["artists"]))")
                     continue;
@@ -92,22 +90,22 @@ public class Ingester {
                 }
             }
 
-            let song = Song(json: file["song"], album: album!.id!,
-                    audioAssetId: audioAsset!.id!, artworkAssetId: artworkAsset?.id!)
-            guard song != nil else {
+
+            guard let song = Song(json: file["song"], album: album.id!,
+                    audioAssetId: audioAsset.id!, artworkAssetId: artworkAsset?.id!) else {
                 print(file)
                 throw IngesterError.songFail
             }
-            try song!.save()
+            try song.save()
 
             if let artists = file["artists"]?.array {
                 for artist_name in artists {
                     let artist = try Artist.findOrCreate(name: artist_name.string!)
-                    if try! !song!.artists.isAttached(artist) {
-                        try song!.artists.add(artist)
+                    if try! !song.artists.isAttached(artist) {
+                        try song.artists.add(artist)
                     }
-                    if try! !album!.artists.isAttached(artist) {
-                        try album!.artists.add(artist)
+                    if try! !album.artists.isAttached(artist) {
+                        try album.artists.add(artist)
                     }
                 }
             }
