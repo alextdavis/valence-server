@@ -5,9 +5,10 @@
 The goal of this project is to create a piece of software which improves upon existing solutions
 for the management and playback of music libraries. 
 
+<!--
 Key target areas for innovation include:
 
-- __Use of a relational database__: Other solutions use xml files for songs with relationships inferred based on comparing string attributes of those songs at runtime, which is prone to errors if the user attempts to customize those records. Valence, with its use of a 
+- __Use of a relational database__: Other solutions use xml files for songs with relationships inferred based on comparing string attributes of those songs at runtime, which is prone to errors if the user attempts to customize those records. Valence, with its use of a -->
 
 ## Query Language for Music Searches
 
