@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
-project_name =
+if ARGV[0] != "-n" && ARGV[0] != "-y"
+  project_name = ARGV[0].dup
+end
+
+project_name ||=
     Dir.glob(".idea/*.iml")&.dig(0)&.match(/\.idea\/(.*)\.iml/)[1] ||
     Dir.pwd.match(/.*\/([^\/]+)/)[1]
 project_name.gsub!('-', '_')
@@ -21,9 +25,9 @@ str << "        )\n"
 
 File.write("CMakeLists.txt", str)
 
-if ARGV[0] == "-n" || `which clion`.length == 0
+if ARGV.include?("-n") || `which clion`.length == 0
   exit
-elsif ARGV[0] == "-y"
+elsif ARGV.include?("-y")
   `clion .`
 else
   puts "Do you wish to open CLion now? (y/n)"
