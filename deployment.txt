@@ -1,0 +1,26 @@
+Install Ruby
+- taglib
+- linguistics
+- vapor_tilt_adapter
+
+Install Swift
+Install Vapor
+
+Install PostgreSQL
+- `sudo apt install postgresql libpq-dev`
+- `sudo -u postgres createuser --superuser $USER`
+- `createdb valence-alpha`
+
+git clone
+vapor build
+
+Config/secrets/postgresql.json
+"""
+{
+  "hostname": "127.0.0.1",
+  "user": "",
+  "password": "",
+  "database": "valence-development",
+  "port": "5432"
+}
+"""
