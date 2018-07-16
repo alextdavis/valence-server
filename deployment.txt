@@ -7,7 +7,7 @@ Install Ruby
 
 Install Vapor repo
 
-apt install swift vapor libtag1-dev postgresql libpq-dev libblocksruntime0 libblocksruntime-dev
+apt install swift vapor libtag1-dev postgresql libpq-dev libblocksruntime0 libblocksruntime-dev ffmpeg
 
 Install PostgreSQL
 - `sudo apt install postgresql libpq-dev`

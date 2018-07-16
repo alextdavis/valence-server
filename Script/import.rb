@@ -15,7 +15,7 @@ require 'set'
 require 'pg'
 
 def md5_base64(filename)
-  hex = `base64 -b #{filename}`.match(/^[0-9a-f]{32}/).to_i(16)
+  hex = `md5sum < #{filename}`.match(/^[0-9a-f]{32}/).to_i(16)
   urlsafe_base64(hex, false)
 end
 

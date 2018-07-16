@@ -10,10 +10,10 @@ let package = Package(
             .executable(name: "Ingest", targets: ["Ingest"])
         ],
         dependencies: [
-            .package(url: "https://github.com/vapor/vapor.git", from: "2.2.0"),
-            .package(url: "https://github.com/vapor/fluent-provider.git", from: "1.2.0"),
+            .package(url: "https://github.com/vapor/vapor.git", .upToNextMajor(from: "2.2.0")),
+            .package(url: "https://github.com/vapor/fluent-provider.git", .upToNextMajor(from: "1.2.0")),
             .package(url: "https://github.com/vapor-community/postgresql-provider.git",
-                     from: "2.1.0"),
+                     .upToNextMajor(from: "2.1.0")),
             .package(url: "https://github.com/Coder-256/Regex.git", from: "2.0.0-alpha.0"),
             .package(url: "https://github.com/alextdavis/tilt-provider.git", from: "0.1.1"),
             .package(url: "https://github.com/jkandzi/Progress.swift.git", from: "0.2.0"),
